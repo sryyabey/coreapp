@@ -47,6 +47,17 @@ class ShiftCalApiTest extends TestCase
         $this->getJson($this->prefix.'/events/'.$id)->assertNotFound();
     }
 
+    public function test_retried_create_is_idempotent_and_key_cannot_be_reused_for_different_data(): void
+    {
+        $data = array_replace($this->eventData(), ['client_request_id' => '22222222-2222-4222-8222-222222222222']);
+        $first = $this->postJson($this->prefix.'/events', $data)->assertCreated();
+        $this->postJson($this->prefix.'/events', $data)->assertOk()->assertJsonPath('data.id', $first->json('data.id'));
+        $this->postJson($this->prefix.'/events', array_replace($data, ['note' => 'Different']))->assertConflict();
+        $this->patchJson($this->prefix.'/events/'.$first->json('data.id'), ['client_request_id' => '33333333-3333-4333-8333-333333333333'])
+            ->assertUnprocessable()->assertJsonValidationErrors('client_request_id');
+        $this->assertDatabaseCount('shiftcal_events', 1);
+    }
+
     public function test_invalid_event_dates_timezone_and_owner_are_rejected(): void
     {
         $this->postJson($this->prefix.'/events', array_replace($this->eventData(), ['ends_at' => '2026-10-03T21:00:00+03:00', 'timezone' => 'invalid', 'user_id' => 1]))

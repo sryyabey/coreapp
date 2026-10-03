@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['type', 'starts_at', 'ends_at', 'timezone', 'color', 'note'])]
+#[Fillable(['type', 'starts_at', 'ends_at', 'timezone', 'color', 'note', 'client_request_id'])]
 class Event extends Model
 {
     /** @use HasFactory<EventFactory> */

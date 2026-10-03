@@ -26,6 +26,6 @@ class EventRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['type' => ['required', 'in:work,freeTime,sleep,duty,exercise,other'], 'color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'], 'note' => ['nullable', 'string', 'max:5000'], 'app_id' => ['prohibited'], 'user_id' => ['prohibited'], 'id' => ['prohibited'], 'starts_at' => ['required', new OffsetDateTime], 'ends_at' => ['required', new OffsetDateTime, 'after:starts_at'], 'timezone' => ['required', 'timezone:all']];
+        return ['client_request_id' => $this->route('event') ? ['prohibited'] : ['sometimes', 'required', 'uuid'], 'type' => ['required', 'in:work,freeTime,sleep,duty,exercise,other'], 'color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'], 'note' => ['nullable', 'string', 'max:5000'], 'app_id' => ['prohibited'], 'user_id' => ['prohibited'], 'id' => ['prohibited'], 'starts_at' => ['required', new OffsetDateTime], 'ends_at' => ['required', new OffsetDateTime, 'after:starts_at'], 'timezone' => ['required', 'timezone:all']];
     }
 }
