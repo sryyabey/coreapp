@@ -11,6 +11,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -28,6 +29,9 @@ class ManagePanelProvider extends PanelProvider
             ->default()
             ->id('manage')
             ->path('manage')
+            ->brandName('CoreApp')
+            ->navigationGroups(['Uygulamalar', 'Abonelikler', 'Yönetim'])
+            ->sidebarCollapsibleOnDesktop()
             ->authGuard('web')
             ->login()
             ->colors([
@@ -55,7 +59,13 @@ class ManagePanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->navigationGroup('Yönetim')
+                    ->navigationLabel('Roller ve İzinler')
+                    ->navigationIcon(Heroicon::OutlinedShieldCheck)
+                    ->navigationSort(10)
+                    ->modelLabel('Rol')
+                    ->pluralModelLabel('Roller'),
             ])
             ->authMiddleware([
                 Authenticate::class,

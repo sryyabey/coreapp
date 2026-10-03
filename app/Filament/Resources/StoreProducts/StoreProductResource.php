@@ -13,14 +13,21 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class StoreProductResource extends Resource
 {
     protected static ?string $model = StoreProduct::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Abonelikler';
+
+    protected static ?int $navigationSort = 20;
 
     protected static ?string $recordTitleAttribute = 'product_id';
+
+    protected static ?string $modelLabel = 'Mağaza Ürünü';
 
     protected static ?string $pluralModelLabel = 'Mağaza Ürünleri';
 
