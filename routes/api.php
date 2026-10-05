@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Http\Controllers\Api\V1\ShiftCal\CloudBackupController;
 use App\Http\Controllers\Api\V1\ShiftCal\EventController;
 use App\Http\Controllers\Api\V1\ShiftCal\ShiftTemplateController;
+use App\Http\Controllers\Api\V1\ShiftCal\TemplateApplicationController;
 use App\Http\Controllers\Api\V1\ShiftCal\WageSettingController;
 use App\Http\Controllers\Api\V1\StoreNotificationController;
 use App\Http\Middleware\EnsureAppMembership;
@@ -24,6 +25,8 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
         Route::prefix('shiftcal')->name('shiftcal.')->middleware(EnsureShiftCalApp::class)->group(function (): void {
             Route::get('cloud-backup', [CloudBackupController::class, 'show'])->name('cloud-backup.show');
             Route::post('cloud-backup', [CloudBackupController::class, 'store'])->middleware('throttle:5,1')->name('cloud-backup.store');
+            Route::post('template-applications', [TemplateApplicationController::class, 'store'])->name('template-applications.store');
+            Route::delete('template-applications/{application}', [TemplateApplicationController::class, 'destroy'])->whereUuid('application')->name('template-applications.destroy');
             Route::apiResource('events', EventController::class)->whereUuid('event');
             Route::apiResource('shift-templates', ShiftTemplateController::class)->whereUuid('shift_template');
             Route::get('wage-settings', [WageSettingController::class, 'show'])->name('wage-settings.show');
