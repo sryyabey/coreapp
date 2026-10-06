@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\EntitlementController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Http\Controllers\Api\V1\ShiftCal\CloudBackupController;
 use App\Http\Controllers\Api\V1\ShiftCal\EventController;
+use App\Http\Controllers\Api\V1\ShiftCal\PartnerController;
 use App\Http\Controllers\Api\V1\ShiftCal\ShiftTemplateController;
 use App\Http\Controllers\Api\V1\ShiftCal\TemplateApplicationController;
 use App\Http\Controllers\Api\V1\ShiftCal\WageSettingController;
@@ -23,6 +24,12 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
     });
     Route::middleware(['auth:sanctum', EnsureAppMembership::class, 'throttle:mobile-api'])->group(function (): void {
         Route::prefix('shiftcal')->name('shiftcal.')->middleware(EnsureShiftCalApp::class)->group(function (): void {
+            Route::get('partner', [PartnerController::class, 'show'])->name('partner.show');
+            Route::post('partner/invitation', [PartnerController::class, 'invite'])->middleware('throttle:5,1')->name('partner.invite');
+            Route::delete('partner/invitation', [PartnerController::class, 'cancel'])->name('partner.cancel');
+            Route::post('partner/preview', [PartnerController::class, 'preview'])->middleware('throttle:10,1')->name('partner.preview');
+            Route::post('partner/accept', [PartnerController::class, 'accept'])->middleware('throttle:10,1')->name('partner.accept');
+            Route::delete('partner', [PartnerController::class, 'disconnect'])->name('partner.disconnect');
             Route::get('cloud-backup', [CloudBackupController::class, 'show'])->name('cloud-backup.show');
             Route::post('cloud-backup', [CloudBackupController::class, 'store'])->middleware('throttle:5,1')->name('cloud-backup.store');
             Route::post('template-applications', [TemplateApplicationController::class, 'store'])->name('template-applications.store');
