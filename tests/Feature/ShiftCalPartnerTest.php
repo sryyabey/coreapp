@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\App;
 use App\Models\AppUser;
 use App\Models\Device;
+use App\Models\ShiftCal\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -105,5 +106,50 @@ class ShiftCalPartnerTest extends TestCase
         $this->postJson($this->prefix.'/accept', ['code' => $code])->assertNotFound();
         $this->app['auth']->forgetGuards();
         $this->withHeader('Authorization', '')->getJson($this->prefix)->assertUnauthorized();
+    }
+
+    public function test_shared_schedule_redacts_private_fields_and_clips_overnight_events(): void
+    {
+        $code = $this->invite();
+        $this->signIn($this->second);
+        $this->postJson($this->prefix.'/accept', ['code' => $code])->assertOk();
+        foreach ([['duty', '2026-10-05 22:00:00', '2026-10-06 04:00:00'],
+            ['sleep', '2026-10-06 04:00:00', '2026-10-06 10:00:00'],
+            ['freeTime', '2026-10-06 10:00:00', '2026-10-06 12:00:00'],
+            ['exercise', '2026-10-06 12:00:00', '2026-10-06 13:00:00'],
+            ['other', '2026-10-06 23:00:00', '2026-10-07 01:00:00']] as [$type, $from, $to]) {
+            Event::factory()->create(['app_id' => $this->first->app_id, 'user_id' => $this->first->user_id,
+                'type' => $type, 'starts_at' => $from, 'ends_at' => $to, 'note' => 'Gizli not', 'color' => '#FF1234']);
+        }
+        Event::factory()->create(['app_id' => $this->first->app_id, 'user_id' => $this->second->user_id,
+            'starts_at' => '2026-10-06 10:00:00', 'ends_at' => '2026-10-06 11:00:00']);
+        Event::factory()->create(['user_id' => $this->first->user_id,
+            'starts_at' => '2026-10-06 10:00:00', 'ends_at' => '2026-10-06 11:00:00']);
+        $path = $this->prefix.'/schedule?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z';
+        $response = $this->getJson($path)->assertOk()->assertJsonCount(5, 'data')
+            ->assertJsonPath('data.0.state', 'work')->assertJsonPath('data.1.state', 'sleep')
+            ->assertJsonPath('data.2.state', 'free')->assertJsonPath('data.3.state', 'busy')
+            ->assertJsonPath('data.4.state', 'busy')->assertHeader('Cache-Control', 'no-store, private');
+        foreach ($response->json('data') as $period) {
+            $this->assertSame(['state', 'starts_at', 'ends_at'], array_keys($period));
+        }
+        $this->assertSame('2026-10-06T00:00:00+00:00', $response->json('data.0.starts_at'));
+        $this->assertSame('2026-10-07T00:00:00+00:00', $response->json('data.4.ends_at'));
+        $this->deleteJson($this->prefix)->assertNoContent();
+        $this->getJson($path)->assertNotFound();
+    }
+
+    public function test_shared_schedule_requires_valid_bounded_dates_and_active_partner(): void
+    {
+        $this->getJson($this->prefix.'/schedule')->assertUnprocessable();
+        $this->getJson($this->prefix.'/schedule?from=2026-10-06&to=2026-10-07')->assertUnprocessable();
+        $this->getJson($this->prefix.'/schedule?from=2026-10-06T00:00:00Z&to=2026-10-08T00:00:00Z')->assertUnprocessable();
+        $path = $this->prefix.'/schedule?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z';
+        $this->getJson($path)->assertNotFound();
+        $code = $this->invite();
+        $this->signIn($this->second);
+        $this->postJson($this->prefix.'/accept', ['code' => $code])->assertOk();
+        $this->first->update(['is_active' => false]);
+        $this->getJson($path)->assertNotFound();
     }
 }

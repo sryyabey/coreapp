@@ -25,6 +25,7 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
     Route::middleware(['auth:sanctum', EnsureAppMembership::class, 'throttle:mobile-api'])->group(function (): void {
         Route::prefix('shiftcal')->name('shiftcal.')->middleware(EnsureShiftCalApp::class)->group(function (): void {
             Route::get('partner', [PartnerController::class, 'show'])->name('partner.show');
+            Route::get('partner/schedule', [PartnerController::class, 'schedule'])->name('partner.schedule');
             Route::post('partner/invitation', [PartnerController::class, 'invite'])->middleware('throttle:5,1')->name('partner.invite');
             Route::delete('partner/invitation', [PartnerController::class, 'cancel'])->name('partner.cancel');
             Route::post('partner/preview', [PartnerController::class, 'preview'])->middleware('throttle:10,1')->name('partner.preview');

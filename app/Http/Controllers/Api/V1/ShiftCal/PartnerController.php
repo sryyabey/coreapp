@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1\ShiftCal;
 
 use App\Http\Controllers\Controller;
+use App\Models\ShiftCal\Event;
+use App\Rules\OffsetDateTime;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,6 +15,34 @@ use Illuminate\Support\Str;
 
 class PartnerController extends Controller
 {
+    public function schedule(Request $request): JsonResponse
+    {
+        $filters = $request->validate([
+            'from' => ['required', new OffsetDateTime],
+            'to' => ['required', new OffsetDateTime, 'after:from'],
+        ]);
+        $from = CarbonImmutable::parse($filters['from'])->utc();
+        $to = CarbonImmutable::parse($filters['to'])->utc();
+        abort_if($from->diffInMinutes($to) > 1560, 422, 'Bir seferde en fazla bir gün görüntülenebilir.');
+        $link = $this->links($request)->where('user_id', $request->user()->id)->first();
+        abort_unless($link, 404, 'Eş bağlantısı bulunamadı.');
+        abort_unless(DB::table('app_users')->where('app_id', $link->app_id)->where('user_id', $link->partner_user_id)->where('is_active', true)->exists(), 404, 'Eş bağlantısı kullanılamıyor.');
+        $events = Event::where('app_id', $link->app_id)->where('user_id', $link->partner_user_id)
+            ->where('starts_at', '<', $to)->where('ends_at', '>', $from)
+            ->orderBy('starts_at')->get(['type', 'starts_at', 'ends_at']);
+
+        return response()->json(['data' => $events->map(fn (Event $event): array => [
+            'state' => match ($event->type) {
+                'work', 'duty' => 'work',
+                'sleep' => 'sleep',
+                'freeTime' => 'free',
+                default => 'busy',
+            },
+            'starts_at' => ($event->starts_at->lt($from) ? $from : $event->starts_at)->toIso8601String(),
+            'ends_at' => ($event->ends_at->gt($to) ? $to : $event->ends_at)->toIso8601String(),
+        ])->values()])->header('Cache-Control', 'private, no-store');
+    }
+
     private function links(Request $request): Builder
     {
         return DB::table('shiftcal_partner_links')->where('app_id', $request->attributes->get('mobile_app')->id);
