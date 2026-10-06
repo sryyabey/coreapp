@@ -141,6 +141,8 @@ class PartnerController extends Controller
         if ($link) {
             DB::transaction(function () use ($request, $link): void {
                 DB::table('users')->whereIn('id', [$request->user()->id, $link->partner_user_id])->orderBy('id')->lockForUpdate()->get();
+                DB::table('shiftcal_shared_plans')->where('app_id', $link->app_id)->where('connection_id', $link->connection_id)
+                    ->whereIn('status', ['pending', 'accepted'])->update(['status' => 'cancelled', 'updated_at' => now()]);
                 $this->links($request)->where('connection_id', $link->connection_id)->delete();
             });
         }

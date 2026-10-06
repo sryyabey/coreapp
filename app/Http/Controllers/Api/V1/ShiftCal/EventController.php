@@ -67,13 +67,16 @@ class EventController extends Controller
 
     public function update(EventRequest $request, string $app, string $event): EventResource
     {
-        $record = $this->owned($request)->whereKey($event)->firstOrFail();
-        $data = $request->validated();
-        $data['starts_at'] = CarbonImmutable::parse($data['starts_at'])->utc();
-        $data['ends_at'] = CarbonImmutable::parse($data['ends_at'])->utc();
-        $record->update($data);
+        return DB::transaction(function () use ($request, $event): EventResource {
+            AppUser::whereKey($request->attributes->get('app_membership')->id)->lockForUpdate()->firstOrFail();
+            $record = $this->owned($request)->whereKey($event)->firstOrFail();
+            $data = $request->validated();
+            $data['starts_at'] = CarbonImmutable::parse($data['starts_at'])->utc();
+            $data['ends_at'] = CarbonImmutable::parse($data['ends_at'])->utc();
+            $record->update($data);
 
-        return new EventResource($record);
+            return new EventResource($record);
+        });
     }
 
     public function destroy(Request $request, string $app, string $event): Response
