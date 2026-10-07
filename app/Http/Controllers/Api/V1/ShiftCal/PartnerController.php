@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\ShiftCal;
 use App\Http\Controllers\Controller;
 use App\Models\ShiftCal\Event;
 use App\Rules\OffsetDateTime;
+use App\Services\ShiftCal\PushOutbox;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
@@ -144,6 +145,7 @@ class PartnerController extends Controller
                 DB::table('shiftcal_shared_plans')->where('app_id', $link->app_id)->where('connection_id', $link->connection_id)
                     ->whereIn('status', ['pending', 'accepted'])->update(['status' => 'cancelled', 'updated_at' => now()]);
                 $this->links($request)->where('connection_id', $link->connection_id)->delete();
+                app(PushOutbox::class)->enqueue($link->app_id, $link->partner_user_id, 'disconnected', 'disconnected:'.$link->connection_id, null, $link->connection_id);
             });
         }
 

@@ -28,3 +28,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+/storage/app/private/*firebase*.json
+/storage/app/private/*service-account*.json

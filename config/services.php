@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'shiftcal_fcm' => [
+        'enabled' => env('SHIFTCAL_FCM_ENABLED', false),
+        'credentials' => env('SHIFTCAL_FCM_CREDENTIALS'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

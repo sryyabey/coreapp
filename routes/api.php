@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\EntitlementController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Http\Controllers\Api\V1\ShiftCal\CloudBackupController;
 use App\Http\Controllers\Api\V1\ShiftCal\EventController;
+use App\Http\Controllers\Api\V1\ShiftCal\NotificationController;
 use App\Http\Controllers\Api\V1\ShiftCal\PartnerController;
 use App\Http\Controllers\Api\V1\ShiftCal\SharedPlanController;
 use App\Http\Controllers\Api\V1\ShiftCal\ShiftTemplateController;
@@ -25,9 +26,14 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
     });
     Route::middleware(['auth:sanctum', EnsureAppMembership::class, 'throttle:mobile-api'])->group(function (): void {
         Route::prefix('shiftcal')->name('shiftcal.')->middleware(EnsureShiftCalApp::class)->group(function (): void {
+            Route::get('notification-preferences', [NotificationController::class, 'show']);
+            Route::patch('notification-preferences', [NotificationController::class, 'update']);
+            Route::post('push-device', [NotificationController::class, 'register'])->middleware('throttle:20,1');
+            Route::delete('push-device', [NotificationController::class, 'unregister']);
             Route::get('partner', [PartnerController::class, 'show'])->name('partner.show');
             Route::get('partner/schedule', [PartnerController::class, 'schedule'])->name('partner.schedule');
             Route::get('partner/plans', [SharedPlanController::class, 'index'])->name('partner.plans.index');
+            Route::get('partner/plans/{plan}', [SharedPlanController::class, 'show'])->whereUuid('plan');
             Route::post('partner/plans', [SharedPlanController::class, 'store'])->middleware('throttle:10,1')->name('partner.plans.store');
             Route::patch('partner/plans/{plan}', [SharedPlanController::class, 'update'])->whereUuid('plan')->name('partner.plans.update');
             Route::post('partner/invitation', [PartnerController::class, 'invite'])->middleware('throttle:5,1')->name('partner.invite');

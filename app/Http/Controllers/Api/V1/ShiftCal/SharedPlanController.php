@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\ShiftCal;
 
 use App\Http\Controllers\Controller;
 use App\Rules\OffsetDateTime;
+use App\Services\ShiftCal\PushOutbox;
 use App\Services\ShiftCal\SharedPlanService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -36,6 +37,20 @@ class SharedPlanController extends Controller
         $incoming = (clone $query)->where('recipient_id', $userId)->where('status', 'pending')->where('starts_at', '>', now())->count();
 
         return response()->json(['data' => $active->concat($closed)->map(fn (object $plan): array => $this->plans->resource($plan, $userId))->values(), 'meta' => ['incoming_count' => $incoming]])->header('Cache-Control', 'private, no-store');
+    }
+
+    public function show(Request $request, string $app, string $plan): JsonResponse
+    {
+        $appId = $request->attributes->get('mobile_app')->id;
+        $userId = $request->user()->id;
+        $link = DB::table('shiftcal_partner_links')->where('app_id', $appId)->where('user_id', $userId)->first();
+        abort_unless($link, 404);
+        abort_unless(DB::table('app_users')->where('app_id', $appId)->where('user_id', $link->partner_user_id)->where('is_active', true)->exists(), 404);
+        $record = DB::table('shiftcal_shared_plans')->where('id', $plan)->where('app_id', $appId)->where('connection_id', $link->connection_id)
+            ->where(fn ($query) => $query->where('proposer_id', $userId)->orWhere('recipient_id', $userId))->first();
+        abort_unless($record, 404);
+
+        return $this->response($record, $userId);
     }
 
     public function store(Request $request): JsonResponse
@@ -72,6 +87,8 @@ class SharedPlanController extends Controller
                 'status' => 'pending', 'created_at' => now(), 'updated_at' => now(),
             ]);
 
+            app(PushOutbox::class)->enqueue($appId, $link->partner_user_id, 'offered', 'offered:'.$id, $id, $link->connection_id, $start);
+
             return $this->response(DB::table('shiftcal_shared_plans')->where('id', $id)->first(), $userId, 201);
         });
     }
@@ -106,6 +123,9 @@ class SharedPlanController extends Controller
                 abort_if($this->plans->conflicts($appId, $record->proposer_id, $record->recipient_id, $start, $end, $record->id), 409, 'Bu saatler artık ortak boş değil. Programınızı yenileyin.');
             }
             DB::table('shiftcal_shared_plans')->where('id', $plan)->update(['status' => $target, 'updated_at' => now()]);
+            $type = $data['action'] === 'cancel' && $record->status === 'pending' ? 'withdrawn' : $target;
+            $recipient = $record->proposer_id === $userId ? $record->recipient_id : $record->proposer_id;
+            app(PushOutbox::class)->enqueue($appId, $recipient, $type, $type.':'.$plan, $plan, $link->connection_id);
             $record->status = $target;
 
             return $this->response($record, $userId);

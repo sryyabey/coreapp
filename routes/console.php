@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('billing:retry-notifications')->everyTenMinutes()->withoutOverlapping();
 
 Schedule::command('billing:check-subscriptions')->everyFiveMinutes()->withoutOverlapping();
+
+Schedule::command('shiftcal:dispatch-notifications')->everyMinute()->withoutOverlapping();
