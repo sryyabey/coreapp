@@ -68,6 +68,6 @@
     </section>
     <section class="banner"><div><h2>{{ $tr ? 'Bir sorunuz mu var?' : 'Have a question?' }}</h2><p>{{ $tr ? 'ShiftCal hakkında bilgi almak veya uygulamayla ilgili yardım istemek için destek ekibimize ulaşın.' : 'Contact our support team to learn more about ShiftCal or get help with the app.' }}</p></div><a class="button" href="{{ route('shiftcal.support', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Destek merkezi' : 'Support center' }} <span aria-hidden="true">↗</span></a></section>
 </main>
-<footer><div class="wrap footer-inner"><span>© {{ date('Y') }} ShiftCal · <a href="{{ route('home') }}">SryyaLabs</a></span><a href="{{ route('shiftcal.privacy', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Gizlilik politikası' : 'Privacy policy' }}</a><a href="{{ route('shiftcal.support', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Yardım ve iletişim' : 'Help & contact' }}</a></div></footer>
+<footer><div class="wrap footer-inner"><span>© {{ date('Y') }} ShiftCal · <a href="{{ route('home') }}">SryyaLabs</a></span><a href="{{ route('shiftcal.privacy', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Gizlilik politikası' : 'Privacy policy' }}</a><a href="{{ route('shiftcal.support', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Yardım ve iletişim' : 'Help & contact' }}</a></div><a href="{{ route('shiftcal.terms', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Kullanım koşulları' : 'Terms of service' }}</a></footer>
 </body>
 </html>

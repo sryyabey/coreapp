@@ -52,6 +52,6 @@
     </section>
     <p class="note">{{ $tr ? 'Bu sayfa ShiftCal uygulamasının resmi destek sayfasıdır.' : 'This is the official support page for the ShiftCal app.' }}</p>
 </main>
-<footer><span>© {{ date('Y') }} SryyaLabs · ShiftCal</span><a href="{{ route('shiftcal.privacy', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Gizlilik politikası' : 'Privacy policy' }}</a><a href="{{ route('shiftcal', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'ShiftCal’i keşfet' : 'Explore ShiftCal' }}</a></footer>
+<footer><span>© {{ date('Y') }} SryyaLabs · ShiftCal</span><a href="{{ route('shiftcal.privacy', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Gizlilik politikası' : 'Privacy policy' }}</a><a href="{{ route('shiftcal', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'ShiftCal’i keşfet' : 'Explore ShiftCal' }}</a><a href="{{ route('shiftcal.terms', $tr ? [] : ['lang' => 'en']) }}">{{ $tr ? 'Kullanım koşulları' : 'Terms of service' }}</a></footer>
 </body>
 </html>
