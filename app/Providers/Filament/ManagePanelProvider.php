@@ -30,7 +30,7 @@ class ManagePanelProvider extends PanelProvider
             ->id('manage')
             ->path('manage')
             ->brandName('CoreApp')
-            ->navigationGroups(['Uygulamalar', 'Abonelikler', 'Yönetim'])
+            ->navigationGroups(['Uygulamalar', 'Abonelikler', 'Destek', 'Yönetim'])
             ->sidebarCollapsibleOnDesktop()
             ->authGuard('web')
             ->login()
