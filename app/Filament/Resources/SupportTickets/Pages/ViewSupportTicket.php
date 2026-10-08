@@ -133,27 +133,75 @@ class ViewSupportTicket extends ViewRecord
         Notification::make()->title($message)->success()->send();
     }
 
+    public function getTitle(): string
+    {
+        return 'Destek görüşmesi';
+    }
+
     protected function getHeaderActions(): array
+    {
+        return [];
+    }
+
+    private function ticketAction(string $name): Action
+    {
+        return collect($this->getTicketActions())->first(fn (Action $action): bool => $action->getName() === $name);
+    }
+
+    public function replyAction(): Action
+    {
+        return $this->ticketAction('reply');
+    }
+
+    public function takeAction(): Action
+    {
+        return $this->ticketAction('take');
+    }
+
+    public function detailsAction(): Action
+    {
+        return $this->ticketAction('details');
+    }
+
+    public function noteAction(): Action
+    {
+        return $this->ticketAction('note');
+    }
+
+    public function closeAction(): Action
+    {
+        return $this->ticketAction('close');
+    }
+
+    public function reopenAction(): Action
+    {
+        return $this->ticketAction('reopen');
+    }
+
+    protected function getTicketActions(): array
     {
         $allowed = fn (): bool => auth()->user()->can('update', $this->record);
 
         return [
             Action::make('reply')->label('Yanıt gönder')->icon('heroicon-o-paper-airplane')->visible($allowed)->authorize($allowed)
                 ->disabled(fn (): bool => ! $this->record->app->is_active || ! $this->notificationSummary()['membership_active'])
-                ->modalHeading('Kullanıcıya yanıt gönder')->modalDescription(fn (): string => $this->record->app->name.' · '.$this->record->user->email.' · '.$this->record->subject.' — Son kullanıcı mesajı: '.Str::limit((string) $this->record->messages()->where('sender_type', 'user')->reorder('id', 'desc')->value('body'), 250))
+                ->slideOver()->modalWidth('xl')->modalHeading('Kullanıcıya yanıt yaz')
+                ->modalDescription('Yanıtınız aşağıdaki kullanıcının uygulama içi destek görüşmesine gönderilir.')
+                ->modalContent(fn () => view('filament.resources.support-tickets.reply-context', ['ticket' => $this->record]))
+                ->modalSubmitActionLabel('Yanıtı gönder')->modalCancelActionLabel('Vazgeç')
                 ->mountUsing(function (Schema $schema): void {
                     $this->refreshTicket();
                     $this->actionVersion = $this->record->version;
                     $this->replyRequestId = (string) Str::uuid();
                     $schema->fill(['close_after_reply' => false]);
                 })
-                ->extraModalFooterActions([Action::make('refreshDraft')->label('Görüşmeyi yenile')->color('gray')->authorize($allowed)->action(function (): void {
+                ->extraModalFooterActions([Action::make('refreshDraft')->label('Görüşmeyi yenile')->color('gray')->visible(fn (): bool => $this->actionVersion !== $this->record->version)->authorize($allowed)->action(function (): void {
                     $this->refreshTicket();
                     $this->actionVersion = $this->record->version;
                     Notification::make()->title('Görüşme yenilendi. Son kullanıcı mesajını kontrol edip yanıtınızı gönderin.')->warning()->send();
                 })])
                 ->schema([
-                    Select::make('template_id')->label('Hazır yanıt')->options(fn (): array => $this->templateOptions())->searchable()->live()
+                    Select::make('template_id')->label('Hazır yanıt kullan (isteğe bağlı)')->placeholder('Bir şablon seçin')->options(fn (): array => $this->templateOptions())->searchable()->live()
                         ->afterStateUpdated(function ($state, Set $set): void {
                             Gate::authorize('view', $this->record);
                             if (! $state) {
@@ -164,8 +212,8 @@ class ViewSupportTicket extends ViewRecord
                                 $set('body', $template->body);
                             }
                         }),
-                    Textarea::make('body')->label('Yanıt')->required()->maxLength(5000)->rows(9)->helperText('Bu metin yalnızca yukarıdaki uygulamanın destek kutusuna gönderilir. Hazır yanıtı göndermeden önce düzenleyebilirsiniz.'),
-                    Toggle::make('close_after_reply')->label('Yanıtı gönderip talebi kapat')->default(false),
+                    Textarea::make('body')->label('Yanıt')->required()->maxLength(5000)->rows(8)->placeholder('Kullanıcıya göndereceğiniz yanıtı yazın…'),
+                    Toggle::make('close_after_reply')->label('Gönderdikten sonra talebi kapat')->helperText('Kapalıysa görüşme yanıtlandı durumunda kalır.')->default(false),
                 ])
                 ->action(function (array $data): void {
                     app(SupportService::class)->reply($this->record, auth()->user(), $data['body'], $this->replyRequestId ?? (string) Str::uuid(), $data['close_after_reply'] ?? false, $this->actionVersion);
