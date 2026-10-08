@@ -13,3 +13,5 @@ Schedule::command('billing:retry-notifications')->everyTenMinutes()->withoutOver
 Schedule::command('billing:check-subscriptions')->everyFiveMinutes()->withoutOverlapping();
 
 Schedule::command('shiftcal:dispatch-notifications')->everyMinute()->withoutOverlapping();
+
+Schedule::command('support:dispatch-notifications')->everyMinute()->withoutOverlapping();

@@ -8,15 +8,17 @@ use RuntimeException;
 
 class FcmSender
 {
-    public function configured(): bool
+    public function configured(?string $appSlug = null): bool
     {
-        return config('services.shiftcal_fcm.enabled') && is_file((string) config('services.shiftcal_fcm.credentials'));
+        $settings = $this->settings($appSlug);
+
+        return ($settings['enabled'] ?? false) && is_file((string) ($settings['credentials'] ?? ''));
     }
 
     /** @param array<string, mixed> $message @return array{status: string, id?: string} */
-    public function send(array $message): array
+    public function send(array $message, ?string $appSlug = null): array
     {
-        $credentials = json_decode(file_get_contents(config('services.shiftcal_fcm.credentials')), true, flags: JSON_THROW_ON_ERROR);
+        $credentials = json_decode(file_get_contents($this->settings($appSlug)['credentials']), true, flags: JSON_THROW_ON_ERROR);
         $project = $credentials['project_id'];
         $response = Http::withToken($this->accessToken($credentials))->timeout(15)->post('https://fcm.googleapis.com/v1/projects/'.rawurlencode($project).'/messages:send', ['message' => $message]);
         if ($response->successful()) {
@@ -30,6 +32,17 @@ class FcmSender
             Cache::forget($this->cacheKey($credentials));
         }
         throw new RuntimeException('FCM_HTTP_'.$response->status());
+    }
+
+    /** @return array<string, mixed> */
+    private function settings(?string $appSlug): array
+    {
+        if ($appSlug === null) {
+            return config('services.shiftcal_fcm', []);
+        }
+        $apps = config('support.fcm.apps', []);
+
+        return $apps[$appSlug] ?? ($appSlug === 'shiftcal' ? config('services.shiftcal_fcm', []) : []);
     }
 
     /** @param array<string, mixed> $credentials */

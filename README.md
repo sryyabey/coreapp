@@ -6,7 +6,7 @@ CoreApp, birden fazla mobil uygulamanın kullanıcılarını, uygulama üyelikle
 
 Her destek talebi bir **uygulama + kullanıcı** çiftine bağlıdır. Aynı kullanıcı ShiftCal ve başka bir uygulamayı kullanıyorsa iki ayrı destek kutusu vardır. Panelden yanıt verirken hedef, açılan talebin uygulaması ve kullanıcısıdır; talebin sahibi veya uygulaması sonradan değiştirilemez.
 
-Destek API’si tüm uygulamalar için ortaktır ve ShiftCal’e özel değildir. Yanıtlar ilgili uygulamanın **uygulama içi destek kutusunda** görünür. Destek yanıtları için telefon push bildirimi veya e-posta gönderimi mevcut değildir.
+Destek API’si tüm uygulamalar için ortaktır ve ShiftCal’e özel değildir. Yanıtlar ilgili uygulamanın **uygulama içi destek kutusunda** görünür. Destek yanıtları için uygulama ve kullanıcıya bağlı telefon push bildirimi gönderilir; e-posta gönderimi bulunmaz.
 
 ### Sunucu kurulumu
 
@@ -121,9 +121,53 @@ Okundu isteğinde gerçekten görüntülediğin son mesajın sayısal `id` değe
 
 Talebi görüntülemek tek başına okundu işareti koymaz. Son görüntülenen mesajı bildirmen, bu sırada gelen daha yeni destek yanıtlarının yanlışlıkla okunmuş sayılmasını önler.
 
+### Destek yanıtı telefon bildirimi
+
+Panelde yeni yanıt kaydedilince aynı veritabanı işlemi içinde `support_push_outbox` kaydı oluşturulur ve işlem tamamlandıktan sonra gönderim kuyruğa alınır. Bildirim yalnızca talebin `app_id + user_id` çiftine ait aktif cihazlara gider. Aynı yanıt tekrar kaydedildiğinde ikinci gönderim kaydı oluşmaz. Okunmuş yanıtlar, kapalı destek bildirimi tercihi, pasif üyelikler ve çıkış yapılmış cihazlar gönderim anında kontrol edilir.
+
+Bildirim metni **“Destek talebiniz yanıtlandı.”** (İngilizce: **“Your support request has been answered.”**) olur. Konu veya yanıt içeriği kilit ekranına eklenmez. Veride `type=support_replied`, `ticket_id`, `account_id`, `app_slug` ve `event_id` bulunur. İstemci bu alanları doğrulayıp talebi oturumlu destek API’sinden yeniden getirerek ilgili görüşmeyi açmalıdır.
+
+ShiftCal, mevcut `SHIFTCAL_FCM_ENABLED` ve `SHIFTCAL_FCM_CREDENTIALS` yapılandırmasını kullanır. Yeni uygulamaların Firebase projelerini `config/support.php` içindeki `fcm.apps` haritasına slug bazında ekle:
+
+```php
+'apps' => [
+    'new-app' => [
+        'enabled' => env('NEW_APP_FCM_ENABLED', false),
+        'credentials' => env('NEW_APP_FCM_CREDENTIALS'),
+    ],
+],
+```
+
+`credentials`, sunucuda web kökü dışında saklanan Firebase hizmet hesabı JSON dosyasının yoludur. Yapılandırması olmayan başka bir uygulama, ShiftCal Firebase projesini otomatik kullanmaz. Android/iOS istemcisini ilgili Firebase projesine bağla; iOS için APNs bağlantısını tamamla. Android’de `{app_slug}_support` bildirim kanalını ve `ic_notification` ikonunu oluştur.
+
+Genel destek bildirim uçları `/api/v1/apps/{app}` öneki altında tüm uygulamalar için kullanılabilir:
+
+| Metot | Yol | Gövde / sonuç |
+| --- | --- | --- |
+| `GET` | `/support/notification-preferences` | `data.support_replies` |
+| `PATCH` | `/support/notification-preferences` | `{"support_replies": true}`; uygulama ve kullanıcıya ait tercih |
+| `POST` | `/support/push-device` | `{"token": "FCM_TOKEN", "enabled": true, "locale": "tr"}`; mevcut oturumun cihaz kaydı |
+| `DELETE` | `/support/push-device` | Mevcut oturumun destek push kaydını kaldırır |
+
+Telefon bildirim izni ve cihaz anahtarı açıksa token’ı kaydet; token değiştiğinde kaydı yenile. Bildirimler kapatıldığında veya çıkışta cihaz kaydını kaldır. ShiftCal bunları mevcut bildirim servisi üzerinden yapar ve **Ayarlar → Bildirimler → Destek yanıtları** ile tercihi yönetir. Genel cihaz anahtarı ve telefon izni de açık olmalıdır.
+
+Sunucuda kuyruk işçisi ve Laravel zamanlayıcısı çalışmalıdır:
+
+```sh
+php artisan queue:work
+```
+
+Mevcut sunucu zamanlayıcısının her dakika `php artisan schedule:run` çalıştırmasını sağla. `support:dispatch-notifications` zamanlayıcıya kayıtlıdır; bekleyen gönderimleri yeniden kuyruğa alır. Gerektiğinde elle de çalıştırılabilir:
+
+```sh
+php artisan support:dispatch-notifications
+```
+
+Yeni tablolara geçişte mevcut ShiftCal push cihazları destek cihaz kayıtlarına aktarılır. Gelecek uygulamalarda kayıt için yukarıdaki genel uçları kullan. Ağ/sağlayıcı hatalarında sınırlı tekrar denenir; geçersiz FCM token’ları devre dışı bırakılır. Telefon teslimatı Firebase/APNs, internet ve işletim sistemine bağlıdır; başarılı sunucu gönderimi cihazda gösterildiğini tek başına kanıtlamaz.
+
 ### Yenileme ve hata yönetimi
 
-ShiftCal destek ekranları açıkken 30 saniyede bir yenilenir; uygulama ön plana geldiğinde ve kullanıcı yenile düğmesine bastığında da veri alınır. Bildirim için kuyruk veya push kurulumu gerekmez; bu akış uygulama içi mesajlaşmadır. Demo hesaplarında destek gönderimi kullanılamaz.
+ShiftCal destek ekranları açıkken 30 saniyede bir yenilenir; uygulama ön plana geldiğinde ve kullanıcı yenile düğmesine bastığında da veri alınır. Destek kutusu push bildirimi gelmese de kullanılabilir; telefon bildirimi için aşağıdaki Firebase ve kuyruk kurulumu gerekir. Demo hesaplarında destek gönderimi kullanılamaz.
 
 | HTTP durumu | Kontrol edilecek durum |
 | --- | --- |
@@ -141,7 +185,7 @@ Yeni talep oluşturma dakikada 5, kullanıcı mesajı gönderme dakikada 10 iste
 CoreApp dizininde:
 
 ```sh
-php artisan test --compact tests/Feature/SupportTicketTest.php tests/Feature/PanelAccessTest.php
+php artisan test --compact tests/Feature/SupportTicketTest.php tests/Feature/SupportNotificationTest.php tests/Feature/PanelAccessTest.php
 ```
 
 ShiftCal dizininde:

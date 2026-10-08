@@ -31,6 +31,7 @@ class SupportService
             }
             if ($message->wasRecentlyCreated) {
                 $record->update(['status' => 'answered', 'last_staff_reply_at' => $message->created_at]);
+                app(SupportPush::class)->enqueue($message);
             }
 
             return $message;

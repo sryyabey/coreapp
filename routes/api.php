@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\ShiftCal\ShiftTemplateController;
 use App\Http\Controllers\Api\V1\ShiftCal\TemplateApplicationController;
 use App\Http\Controllers\Api\V1\ShiftCal\WageSettingController;
 use App\Http\Controllers\Api\V1\StoreNotificationController;
+use App\Http\Controllers\Api\V1\SupportNotificationController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Middleware\EnsureAppMembership;
 use App\Http\Middleware\EnsureShiftCalApp;
@@ -51,6 +52,10 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
             Route::get('wage-settings', [WageSettingController::class, 'show'])->name('wage-settings.show');
             Route::put('wage-settings', [WageSettingController::class, 'update'])->name('wage-settings.update');
         });
+        Route::get('support/notification-preferences', [SupportNotificationController::class, 'show']);
+        Route::patch('support/notification-preferences', [SupportNotificationController::class, 'update']);
+        Route::post('support/push-device', [SupportNotificationController::class, 'register'])->middleware('throttle:20,1');
+        Route::delete('support/push-device', [SupportNotificationController::class, 'unregister']);
         Route::get('support/tickets', [SupportTicketController::class, 'index']);
         Route::post('support/tickets', [SupportTicketController::class, 'store'])->middleware('throttle:5,1');
         Route::get('support/tickets/{ticket}', [SupportTicketController::class, 'show'])->whereUuid('ticket');
