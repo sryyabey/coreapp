@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\EntitlementController;
 use App\Http\Controllers\Api\V1\PurchaseController;
+use App\Http\Controllers\Api\V1\ShiftCal\AccountDeletionController;
 use App\Http\Controllers\Api\V1\ShiftCal\CloudBackupController;
 use App\Http\Controllers\Api\V1\ShiftCal\EventController;
 use App\Http\Controllers\Api\V1\ShiftCal\NotificationController;
@@ -31,6 +32,8 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
     });
     Route::middleware(['auth:sanctum', EnsureAppMembership::class, 'throttle:mobile-api'])->group(function (): void {
         Route::prefix('shiftcal')->name('shiftcal.')->middleware(EnsureShiftCalApp::class)->group(function (): void {
+            Route::post('account/deletion-challenge', [AccountDeletionController::class, 'challenge'])->middleware('throttle:5,1');
+            Route::delete('account', [AccountDeletionController::class, 'destroy'])->middleware('throttle:5,1');
             Route::get('notification-preferences', [NotificationController::class, 'show']);
             Route::patch('notification-preferences', [NotificationController::class, 'update']);
             Route::post('push-device', [NotificationController::class, 'register'])->middleware('throttle:20,1');

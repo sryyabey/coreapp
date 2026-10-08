@@ -3,6 +3,9 @@
 return [
 
     'apple_login' => [
+        'team_id' => env('SHIFTCAL_APPLE_TEAM_ID'),
+        'key_id' => env('SHIFTCAL_APPLE_KEY_ID'),
+        'private_key_path' => env('SHIFTCAL_APPLE_PRIVATE_KEY_PATH'),
         'client_ids' => ['shiftcal' => env('SHIFTCAL_APPLE_CLIENT_ID', 'com.shiftcal.app')],
     ],
 
