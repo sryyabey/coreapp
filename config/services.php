@@ -2,6 +2,10 @@
 
 return [
 
+    'apple_login' => [
+        'client_ids' => ['shiftcal' => env('SHIFTCAL_APPLE_CLIENT_ID', 'com.shiftcal.app')],
+    ],
+
     'google_login' => [
         'client_ids' => ['shiftcal' => env('SHIFTCAL_GOOGLE_WEB_CLIENT_ID')],
     ],

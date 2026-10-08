@@ -22,8 +22,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::class)->group(function (): void {
     Route::get('meta', [AuthController::class, 'meta'])->middleware('throttle:60,1')->name('meta');
+    Route::post('auth/apple/challenge', [AuthController::class, 'appleChallenge'])->middleware('throttle:20,1')->name('apple-challenge');
     Route::middleware('throttle:mobile-auth')->group(function (): void {
         Route::post('auth/register', [AuthController::class, 'register'])->name('register');
+        Route::post('auth/apple', [AuthController::class, 'apple'])->name('apple-login');
         Route::post('auth/google', [AuthController::class, 'google'])->name('google-login');
         Route::post('auth/login', [AuthController::class, 'login'])->name('login');
     });

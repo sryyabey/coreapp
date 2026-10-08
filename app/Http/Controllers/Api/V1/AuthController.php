@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\AppleLoginRequest;
 use App\Http\Requests\Api\GoogleLoginRequest;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Requests\Api\RegisterRequest;
@@ -11,10 +12,12 @@ use App\Http\Resources\Api\UserResource;
 use App\Models\AppUser;
 use App\Models\Device;
 use App\Models\User;
+use App\Services\AppleIdTokenVerifier;
 use App\Services\GoogleIdTokenVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -67,6 +70,51 @@ class AuthController extends Controller
             }
 
             return $this->issueToken($request, $user);
+        });
+    }
+
+    public function appleChallenge(Request $request): JsonResponse
+    {
+        $input = $request->validate(['device_id' => ['required', 'uuid'], 'platform' => ['required', 'in:ios']]);
+        $app = $request->attributes->get('mobile_app');
+        $id = (string) Str::uuid();
+        $nonce = bin2hex(random_bytes(32));
+        Cache::put('apple-login:'.$app->id.':'.$id, ['nonce' => $nonce, ...$input], now()->addMinutes(5));
+
+        return response()->json(['data' => ['challenge_id' => $id, 'nonce' => $nonce]])->header('Cache-Control', 'no-store, private');
+    }
+
+    public function apple(AppleLoginRequest $request, AppleIdTokenVerifier $verifier): JsonResponse
+    {
+        $app = $request->attributes->get('mobile_app');
+        $key = 'apple-login:'.$app->id.':'.$request->validated('challenge_id');
+        $challenge = Cache::get($key);
+        abort_unless(is_array($challenge) && $challenge['device_id'] === $request->validated('device_id') && $challenge['platform'] === $request->validated('platform'), 401, 'Apple giriş isteği geçersiz veya süresi dolmuş.');
+        $claims = $verifier->verify($request->validated('id_token'), $app->slug, $challenge['nonce']);
+
+        return Cache::lock($key.':lock', 15)->block(5, function () use ($key, $request, $claims): JsonResponse {
+            abort_unless(Cache::pull($key) !== null, 401, 'Apple giriş isteği daha önce kullanılmış.');
+
+            return DB::transaction(function () use ($request, $claims): JsonResponse {
+                $user = User::where('apple_id', $claims['sub'])->lockForUpdate()->first();
+                if (! $user) {
+                    $email = mb_strtolower($claims['email'] ?? '');
+                    if (! filter_var($email, FILTER_VALIDATE_EMAIL) || ! in_array($claims['email_verified'] ?? false, [true, 'true'], true)) {
+                        throw ValidationException::withMessages(['id_token' => ['Apple hesabının doğrulanmış e-posta adresi gerekli.']]);
+                    }
+                    if (User::where('email', $email)->exists()) {
+                        throw ValidationException::withMessages(['id_token' => ['Bu e-posta ile bir hesabınız var. Mevcut giriş yönteminizi kullanın.']]);
+                    }
+                    $user = new User([
+                        'name' => $request->validated('name') ?: 'Apple User',
+                        'email' => $email,
+                        'password' => Str::random(64),
+                    ]);
+                    $user->forceFill(['apple_id' => $claims['sub'], 'email_verified_at' => now()])->save();
+                }
+
+                return $this->issueToken($request, $user);
+            });
         });
     }
 
