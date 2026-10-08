@@ -14,29 +14,42 @@ Komutları `CoreApp` dizininde çalıştır:
 
 ```sh
 php artisan migrate --no-interaction
-php artisan shield:generate --resource=SupportTicketResource --option=permissions --panel=manage --no-interaction
+php artisan db:seed --class=SupportSetupSeeder --no-interaction
 ```
 
-Migration, `support_tickets` ve `support_messages` tablolarını oluşturur. İkinci komut yalnızca destek kaynağının panel izinlerini üretir; mevcut özel policy dosyasını değiştirmez. Her yeni uygulama için tekrar tablo veya kaynak oluşturmak gerekmez.
+Migration’lar destek görüşmeleri, uygulama bazlı görevli erişimleri, iç not/işlem geçmişi, hazır yanıtlar ve bildirim kuyruğu tablolarını oluşturur. Seeder altı destek iznini oluşturur, mevcut `super_admin` rolüne verir ve Türkçe/İngilizce başlangıç şablonlarını ekler. Tekrar çalıştırmak düzenlenmiş şablonları değiştirmez. Her yeni uygulama için tekrar tablo veya kaynak oluşturmak gerekmez.
 
 ### Yönetim panelinden kullanma
 
 1. `/manage` adresinde yetkili panel hesabıyla giriş yap.
 2. **Destek → Destek Talepleri** bölümünü aç (`/manage/support-tickets`).
-3. Listede uygulama adı, kullanıcı adı/e-postası, konu, durum ve son hareket tarihini gör. Uygulama ve durum filtreleriyle listeyi daralt.
-4. **Görüşmeyi aç** ile talebi aç. Uygulama/kullanıcı bilgilerini ve mesaj geçmişini kontrol et.
-5. **Yanıt gönder** düğmesine bas. Pencerede hedef uygulama ve kullanıcı e-postası görünür. Yanıtı yazıp gönder; mesaj yalnızca bu talebin uygulama içi görüşmesine kaydedilir.
-6. İşlem tamamlandığında **Talebi kapat** seçeneğini kullan. Kullanıcı aynı görüşmeye yeni mesaj gönderirse talep yeniden açılır.
+3. **Yanıt bekleyen**, **Bana atanan**, **Atanmayan**, **Geciken**, **Kapatılan** kuyruklarını kullan. Sayaçlar yalnızca erişebildiğin uygulamaları kapsar. Uygulama, durum, öncelik, kategori, görevli ve tarih filtreleri; konu, kullanıcı/e-posta ve talep numarası araması bulunur. Filtreler oturumda saklanır; liste 30 saniyede yenilenir.
+4. **Görüşmeyi aç** ile hedef uygulama/kullanıcıyı, okuma durumunu ve geçmişi kontrol et. Görüşme 20 saniyede yenilenir; uzun görüşmelerde önceki mesaj ve işlemleri ayrıca yükle.
+5. **Üzerime al** veya **Atama ve öncelik** ile görevli, öncelik, kategori ve yanıt hedefi belirle. Yalnızca o uygulamada yanıtlama yetkisi olan görevliye atama yapılabilir. Başkasına atanmış talebi üzerime al işlemi devralmaz; atama ekranını kullan. Hedef tarihi geçen kapatılmamış talepler Geciken kuyruğundadır.
+6. **Yanıt gönder** penceresinde hedef uygulama, kullanıcı ve son kullanıcı mesajı görünür. Hazır yanıtlar yalnızca talebin dilindeki genel veya aynı uygulamaya ait aktif şablonlardır; göndermeden önce düzenle. **Yanıtı gönderip talebi kapat** seçeneği de bulunur. Mesaj ve bildirim yalnızca bu uygulama + kullanıcı çiftine gider.
+7. **İç not ekle**, yalnızca yetkili destek ekibinin gördüğü not oluşturur; API’de görünmez ve push üretmez. İşlem geçmişinde kimin ne zaman yanıtladığı, kapattığı, yeniden açtığı ve atama/öncelik değişiklikleri saklanır.
+8. **Talebi kapat** / **Yeniden aç** işlemlerini kullan. Kullanıcının yeni mesajı kapalı talebi otomatik açar; atama, öncelik ve kategori korunur. Listede toplu üzerime alma, öncelik değiştirme ve kapatma bulunur; işlemde hata varsa seçilenlerin tamamı geri alınır.
+9. Başka bir işlem görüşmeyi değiştirdiyse eski yanıt gönderilmez ve taslak korunur. Yanıt penceresindeki **Görüşmeyi yenile** ile son mesajları kontrol edip yeniden gönder. Tekrarlanan aynı gönderim mesajı veya bildirimi çoğaltmaz.
+10. Bildirim bölümünde kullanıcı tercihi ve son yanıtın kuyruk/cihaz gönderim sonucu görünür. FCM kabulü cihazda gösterim garantisi değildir; kullanıcının okuduğu mesajlar ayrıca işaretlenir.
 
-Destek görevlisinin panel erişimi için yapılandırılmış panel rolü (varsayılan `panel_user`) ve şu izinler gerekir. **Yönetim → Roller ve İzinler** bölümünden ilgili role ata:
+Destek görevlisinin yapılandırılmış panel rolü (varsayılan `panel_user`) ve aşağıdaki izinleri olmalıdır. **Yönetim → Roller ve İzinler** bölümünden role ata:
 
 | İzin | Kullanım |
 | --- | --- |
 | `ViewAny:SupportTicket` | Destek listesini açma |
-| `View:SupportTicket` | Görüşmeyi görüntüleme |
-| `Update:SupportTicket` | Yanıt gönderme ve talebi kapatma |
+| `View:SupportTicket` | Görüşme ve özel işlem geçmişini görüntüleme |
+| `Update:SupportTicket` | Yanıtlama, atama, iç not, öncelik, kapatma/açma; görüntüleme izinleri de gerekir |
+| `ViewAllApps:SupportTicket` | Merkezi görevlinin mevcut ve gelecekteki tüm uygulamalara erişimi |
+| `ManageAccess:SupportTicket` | Tüm uygulamalar için görevli erişimlerini yönetme |
+| `ManageTemplates:SupportTicket` | Genel ve uygulamaya özel tüm hazır yanıtları yönetme |
 
-Panelde talep oluşturma, silme veya uygulama/kullanıcı değiştirme işlemi yoktur. Talepler uygulama üzerinden oluşturulur. İzinli destek görevlileri merkezi panelde tüm uygulamaların taleplerini görebilir; uygulama filtresi bir görüntüleme filtresidir, görevli bazında erişim sınırı değildir.
+**Uygulama bazlı görevli:** İlk iki veya üç izni ver, ardından **Destek → Görevli Erişimleri** (`/manage/support-agent-apps`) bölümünde uygulama + görevli kaydı ekle. Bir görevliye birden fazla uygulama atanabilir. Salt okunur görevliye `Update` verme. `ViewAllApps` olmayan görevli, erişim kaydı olmadan hiçbir talebi göremez; doğrudan bağlantı, filtre, sayaç ve aynı kullanıcının diğer talepleri de bu sınırı uygular. Erişim kaldırıldıktan sonra sonraki görüntüleme veya işlem reddedilir. Mevcut atama tarihçesi korunur; açık işleri başka görevliye yeniden ata.
+
+**Merkezi yönetici:** İlk üç izin ve `ViewAllApps` ver. Erişim ve şablon yönetimini yapacaksa ilgili iki yönetim iznini de ekle. Bu iki yönetim izni tüm uygulamaları kapsar; yalnızca güvenilen merkezi yöneticilere ver. Önceki sürümde yalnızca ilk üç izni olan görevliler için geçişte uygulama erişimlerini tanımla veya merkezi görevliye `ViewAllApps` ekle.
+
+**Hazır yanıtlar:** **Destek → Hazır Yanıtlar** (`/manage/support-reply-templates`) bölümünden uygulama, dil, ad, metin ve aktiflik belirle. Uygulama boşsa şablon geneldir. Pasife alınan şablon yeni yanıt seçimlerinde görünmez; gönderilmiş mesajlar değişmez.
+
+Panelde talep oluşturma, silme veya uygulama/kullanıcı değiştirme işlemi yoktur. Talepler uygulama üzerinden oluşturulur. Uygulama veya üyelik pasifken yanıt gönderimi kapalıdır; geçmiş incelenebilir ve iç not eklenebilir.
 
 ### Talep durumları
 
@@ -48,7 +61,7 @@ Panelde talep oluşturma, silme veya uygulama/kullanıcı değiştirme işlemi y
 
 ### Yeni bir uygulamayı bağlama
 
-1. **Uygulamalar** bölümünde uygulamayı oluştur ve aktif hale getir. Benzersiz `slug` belirle; örneğin `new-app`. API yollarındaki `{app}` bu slug’dır, sayısal uygulama kimliği değildir.
+1. **Uygulamalar** bölümünde uygulamayı oluştur ve aktif hale getir. Destek görevlileri için **Görevli Erişimleri** kaydı ve gerekiyorsa uygulamaya özel **Hazır Yanıtlar** ekle; merkezi görevlinin `ViewAllApps` erişimi otomatik kapsar. Benzersiz `slug` belirle; örneğin `new-app`. API yollarındaki `{app}` bu slug’dır, sayısal uygulama kimliği değildir.
 2. Mobil uygulamanın `API_BASE_URL` değerini CoreApp sunucusunun kök adresine ayarla (örneğin `https://api.example.com`, `/api/v1` eklemeden). Gerçek destek kullanımı için demo oturumunu kapat: `ENABLE_DEMO_AUTH=false`.
 3. Kayıt ve giriş isteklerini bu uygulamanın yollarına yönlendir:
    - `POST /api/v1/apps/new-app/auth/register`

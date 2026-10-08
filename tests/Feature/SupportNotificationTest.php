@@ -44,7 +44,10 @@ class SupportNotificationTest extends TestCase
     {
         $user = User::factory()->create();
         $user->assignRole(Role::findOrCreate('panel_user', 'web'));
-        $user->givePermissionTo(Permission::findOrCreate('Update:SupportTicket', 'web'));
+        foreach (['ViewAny:SupportTicket', 'View:SupportTicket', 'Update:SupportTicket'] as $name) {
+            $user->givePermissionTo(Permission::findOrCreate($name, 'web'));
+        }
+        $user->givePermissionTo(Permission::findOrCreate('ViewAllApps:SupportTicket', 'web'));
 
         return $user;
     }

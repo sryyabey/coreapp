@@ -27,7 +27,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -252,7 +252,7 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => ['ViewAllApps:SupportTicket' => 'Tüm uygulamaların destek taleplerine erişim', 'ManageAccess:SupportTicket' => 'Destek görevlilerinin uygulama erişimini yönetme', 'ManageTemplates:SupportTicket' => 'Hazır destek yanıtlarını yönetme'],
 
     /*
     |--------------------------------------------------------------------------

@@ -53,7 +53,7 @@ class SupportTicketTest extends TestCase
     {
         $user = User::factory()->create();
         $user->assignRole(Role::findOrCreate('panel_user', 'web'));
-        foreach (['ViewAny:SupportTicket', 'View:SupportTicket', 'Update:SupportTicket'] as $permission) {
+        foreach (['ViewAny:SupportTicket', 'View:SupportTicket', 'Update:SupportTicket', 'ViewAllApps:SupportTicket'] as $permission) {
             $user->givePermissionTo(Permission::findOrCreate($permission, 'web'));
         }
 

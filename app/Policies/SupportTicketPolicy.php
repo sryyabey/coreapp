@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\SupportTicket;
 use App\Models\User;
+use App\Services\SupportAccess;
 use Filament\Facades\Filament;
 
 class SupportTicketPolicy
@@ -20,12 +21,12 @@ class SupportTicketPolicy
 
     public function view(User $user, SupportTicket $ticket): bool
     {
-        return $this->allowed($user, 'View:SupportTicket');
+        return $this->allowed($user, 'View:SupportTicket') && app(SupportAccess::class)->app($user, $ticket->app_id);
     }
 
     public function update(User $user, SupportTicket $ticket): bool
     {
-        return $this->allowed($user, 'Update:SupportTicket');
+        return $this->allowed($user, 'Update:SupportTicket') && app(SupportAccess::class)->eligibleAgent($user, $ticket->app_id);
     }
 
     public function create(User $user): bool

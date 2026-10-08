@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SupportTicketResource;
 use App\Models\AppUser;
 use App\Models\SupportTicket;
+use App\Services\SupportService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -59,7 +60,9 @@ class SupportTicketController extends Controller
             $ticket = new SupportTicket(collect($data)->except('body')->all());
             $ticket->forceFill(['app_id' => $request->attributes->get('mobile_app')->id, 'user_id' => $request->user()->id]);
             $ticket->save();
-            $ticket->messages()->create(['sender_id' => $request->user()->id, 'sender_type' => 'user', 'body' => $data['body'], 'client_request_id' => $data['client_request_id']]);
+            $message = $ticket->messages()->create(['sender_id' => $request->user()->id, 'sender_type' => 'user', 'body' => $data['body'], 'client_request_id' => $data['client_request_id']]);
+
+            app(SupportService::class)->customerMessage($ticket, $request->user()->id, $message, true);
 
             return $ticket;
         });
@@ -75,7 +78,7 @@ class SupportTicketController extends Controller
             $message = $record->messages()->firstOrCreate(['sender_type' => 'user', 'client_request_id' => $data['client_request_id']], ['sender_id' => $request->user()->id, 'body' => $data['body']]);
             abort_unless($message->body === $data['body'], 409);
             if ($message->wasRecentlyCreated) {
-                $record->update(['status' => 'open']);
+                app(SupportService::class)->customerMessage($record, $request->user()->id, $message);
             }
 
             return $record;
