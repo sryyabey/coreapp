@@ -24,6 +24,7 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
     Route::get('meta', [AuthController::class, 'meta'])->middleware('throttle:60,1')->name('meta');
     Route::middleware('throttle:mobile-auth')->group(function (): void {
         Route::post('auth/register', [AuthController::class, 'register'])->name('register');
+        Route::post('auth/google', [AuthController::class, 'google'])->name('google-login');
         Route::post('auth/login', [AuthController::class, 'login'])->name('login');
     });
     Route::middleware(['auth:sanctum', EnsureAppMembership::class, 'throttle:mobile-api'])->group(function (): void {

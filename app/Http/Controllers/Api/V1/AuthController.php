@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\GoogleLoginRequest;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Resources\Api\AppResource;
@@ -10,11 +11,13 @@ use App\Http\Resources\Api\UserResource;
 use App\Models\AppUser;
 use App\Models\Device;
 use App\Models\User;
+use App\Services\GoogleIdTokenVerifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -36,6 +39,35 @@ class AuthController extends Controller
         }
 
         return DB::transaction(fn (): JsonResponse => $this->issueToken($request, $user));
+    }
+
+    public function google(GoogleLoginRequest $request, GoogleIdTokenVerifier $verifier): JsonResponse
+    {
+        $app = $request->attributes->get('mobile_app');
+        $claims = $verifier->verify($request->validated('id_token'), $app->slug);
+
+        return DB::transaction(function () use ($request, $claims): JsonResponse {
+            $user = User::where('google_id', $claims['sub'])->lockForUpdate()->first();
+            if (! $user) {
+                $email = mb_strtolower($claims['email']);
+                $user = User::where('email', $email)->lockForUpdate()->first();
+                if ($user) {
+                    $authoritative = str_ends_with($email, '@gmail.com') || ! empty($claims['hd']);
+                    if (! $authoritative || $user->google_id !== null) {
+                        throw ValidationException::withMessages(['id_token' => ['Bu hesap için önce e-posta ve şifrenizle giriş yapın.']]);
+                    }
+                } else {
+                    $user = new User([
+                        'name' => mb_substr($claims['name'] ?? strstr($email, '@', true), 0, 255),
+                        'email' => $email,
+                        'password' => Str::random(64),
+                    ]);
+                }
+                $user->forceFill(['google_id' => $claims['sub'], 'email_verified_at' => $user->email_verified_at ?? now()])->save();
+            }
+
+            return $this->issueToken($request, $user);
+        });
     }
 
     private function issueToken(Request $request, User $user, int $status = 200): JsonResponse
