@@ -60,6 +60,22 @@ class SupportTicketTest extends TestCase
         return $user;
     }
 
+    public function test_first_request_returns_the_persisted_status_and_message(): void
+    {
+        $app = App::factory()->create();
+        $this->signIn(AppUser::factory()->create(['app_id' => $app->id]));
+        $payload = $this->payload();
+        $response = $this->postJson($this->url($app), $payload)->assertCreated();
+        $response->assertJsonPath('data.status', 'open')
+            ->assertJsonPath('data.messages.0.body', $payload['body'])
+            ->assertJsonPath('data.messages.0.sender_type', 'user');
+        $id = $response->json('data.id');
+        $this->assertSame($response->json('data.status'), SupportTicket::findOrFail($id)->status);
+        $this->postJson($this->url($app), $payload)->assertOk()->assertJsonPath('data.id', $id)->assertJsonPath('data.status', 'open');
+        $this->assertDatabaseCount('support_tickets', 1);
+        $this->assertDatabaseCount('support_messages', 1);
+    }
+
     public function test_same_user_has_separate_inboxes_and_tokens_for_each_app(): void
     {
         $first = App::factory()->create(['slug' => 'shiftcal']);

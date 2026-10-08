@@ -17,6 +17,8 @@ class SupportTicket extends Model
 
     protected $guarded = ['id', 'app_id', 'user_id'];
 
+    protected $attributes = ['status' => 'open'];
+
     protected function casts(): array
     {
         return ['user_read_at' => 'datetime', 'last_staff_reply_at' => 'datetime'];
