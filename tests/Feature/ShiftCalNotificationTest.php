@@ -16,10 +16,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Mockery;
+use Tests\Support\GrantsShiftCalDuo;
 use Tests\TestCase;
 
 class ShiftCalNotificationTest extends TestCase
 {
+    use GrantsShiftCalDuo;
     use RefreshDatabase;
 
     private AppUser $first;
@@ -38,6 +40,7 @@ class ShiftCalNotificationTest extends TestCase
         $app = App::factory()->create(['slug' => 'shiftcal']);
         $this->first = AppUser::factory()->create(['app_id' => $app->id]);
         $this->second = AppUser::factory()->create(['app_id' => $app->id]);
+        $this->grantDuo($this->first);
         $this->signIn($this->first);
         $code = $this->postJson($this->prefix.'/partner/invitation')->assertCreated()->json('data.code');
         $this->signIn($this->second);
@@ -57,6 +60,15 @@ class ShiftCalNotificationTest extends TestCase
     private function proposal(): string
     {
         return $this->postJson($this->prefix.'/partner/plans', ['title' => 'Gizli akşam başlığı', 'starts_at' => now()->addHour()->toIso8601String(), 'ends_at' => now()->addHours(2)->toIso8601String(), 'timezone' => 'UTC', 'client_request_id' => (string) Str::uuid()])->assertCreated()->json('data.id');
+    }
+
+    public function test_shared_push_is_suppressed_when_duo_expires(): void
+    {
+        $id = $this->proposal();
+        $event = DB::table('shiftcal_push_outbox')->where('plan_id', $id)->first();
+        $this->assertTrue(app(PushOutbox::class)->valid($event));
+        DB::table('purchases')->update(['expires_at' => now()]);
+        $this->assertFalse(app(PushOutbox::class)->valid($event));
     }
 
     public function test_preferences_are_account_scoped_and_minutes_are_validated(): void

@@ -29,7 +29,7 @@
 <main id="main">
     <span class="label">ShiftCal / {{ $tr ? 'Gizlilik' : 'Privacy' }}</span>
     <h1>{{ $tr ? 'Gizlilik Politikası' : 'Privacy Policy' }}</h1>
-    <p class="date">{{ $tr ? 'Son güncelleme: 8 Ekim 2026' : 'Last updated: 8 October 2026' }}</p>
+    <p class="date">{{ $tr ? 'Son güncelleme: 9 Ekim 2026' : 'Last updated: 9 October 2026' }}</p>
     <nav class="card contents" aria-label="{{ $tr ? 'İçindekiler' : 'Contents' }}"><h2>{{ $tr ? 'İçindekiler' : 'Contents' }}</h2><ul>@foreach ($sections as $section)<li><a href="#{{ $section['id'] }}">{{ $section['title'] }}</a></li>@endforeach</ul></nav>
     @foreach ($sections as $section)
         <section class="card" id="{{ $section['id'] }}">

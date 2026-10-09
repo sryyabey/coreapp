@@ -11,6 +11,7 @@ class PurchaseResource extends JsonResource
     {
         return ['id' => $this->id, 'store_product_id' => $this->store_product_id, 'environment' => $this->environment,
             'status' => $this->status, 'expires_at' => $this->expires_at?->toIso8601String(), 'verified_at' => $this->verified_at->toIso8601String(),
+            'is_trial' => $this->is_trial, 'auto_renews' => $this->auto_renews,
             'is_active' => $this->resource->hasPaidAccess()];
     }
 }

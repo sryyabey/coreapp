@@ -8,10 +8,12 @@ use App\Models\Device;
 use App\Models\ShiftCal\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\GrantsShiftCalDuo;
 use Tests\TestCase;
 
 class ShiftCalPartnerTest extends TestCase
 {
+    use GrantsShiftCalDuo;
     use RefreshDatabase;
 
     private AppUser $first;
@@ -31,6 +33,7 @@ class ShiftCalPartnerTest extends TestCase
 
     private function signIn(AppUser $membership): void
     {
+        $this->grantDuo($membership);
         $device = Device::factory()->create(['app_id' => $membership->app_id, 'user_id' => $membership->user_id]);
         $token = $device->user->createToken('phone', ['app:'.$membership->app_id]);
         $token->accessToken->forceFill(['device_id' => $device->id])->save();

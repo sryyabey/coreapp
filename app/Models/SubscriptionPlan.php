@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\ValidationException;
 
-#[Fillable(['app_id', 'name', 'slug', 'period', 'catalog_price', 'currency', 'is_active', 'features'])]
+#[Fillable(['app_id', 'name', 'slug', 'period', 'catalog_price', 'currency', 'is_active', 'features', 'shares_with_partner'])]
 class SubscriptionPlan extends Model
 {
     /** @use HasFactory<SubscriptionPlanFactory> */
@@ -27,7 +27,7 @@ class SubscriptionPlan extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'catalog_price' => 'decimal:2', 'features' => 'array'];
+        return ['is_active' => 'boolean', 'catalog_price' => 'decimal:2', 'features' => 'array', 'shares_with_partner' => 'boolean'];
     }
 
     public function app(): BelongsTo

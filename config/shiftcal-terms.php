@@ -54,6 +54,8 @@ return [
             'id' => 'subscriptions',
             'title' => '7. Ücretli özellikler ve abonelikler',
             'paragraphs' => [
+                'Kişisel vardiya ve kadran kullanımı ücretsizdir. ShiftCal Duo; eşle senkron kullanım, ortak planlar, raporlar ve bulut yedekleme sunan yıllık aboneliktir. Tek abonelik sahibi ve bağlı olduğu mevcut bir eş olmak üzere iki hesabı kapsar. Bağlantı kaldırılır veya değiştirilirse önceki eşin bu abonelikten gelen erişimi sona erer.',
+                'Mağaza tarafından uygun bulunan yeni aboneler için ilk 14 gün ücretsiz deneme sunulur. Deneme, mağazada abonelik işlemini onayladığınızda başlar. İptal etmezseniz deneme sonrasında satın alma ekranında gösterilen yıllık ücret alınır ve abonelik otomatik yenilenir. Deneme uygunluğu, yerel fiyat ve yenileme bilgileri mağaza tarafından belirlenir.',
                 'Ücretli bir özellik veya abonelik sunulduğunda fiyat, kapsam, dönem ve varsa otomatik yenileme bilgileri satın alma ekranında gösterilir. Satın alma işlemleri ilgili mağazanın ödeme, iptal ve iade kurallarına tabidir; kanuni haklarınız saklıdır.',
                 'Uygulamayı kaldırmak veya ShiftCal hesabını silmek mağaza aboneliğini otomatik olarak iptal etmez. Aboneliğinizi satın aldığınız Apple App Store veya Google Play hesabındaki abonelik ayarlarından yönetin.',
             ],
@@ -128,6 +130,8 @@ return [
             'id' => 'subscriptions',
             'title' => '7. Paid features and subscriptions',
             'paragraphs' => [
+                'Personal shifts and the dial are free. ShiftCal Duo is an annual subscription for partner sync, shared plans, reports and cloud backup. One subscription covers its owner and one currently connected partner. Disconnecting or changing partners ends the previous partner’s access through that subscription.',
+                'New subscribers who are eligible according to the store can receive a 14-day free trial. The trial starts when you confirm the store subscription. Unless cancelled, the annual price shown on the purchase screen is charged after the trial and the subscription renews automatically. The store determines trial eligibility, local pricing and renewal details.',
                 'If a paid feature or subscription is offered, its price, scope, period and any automatic renewal details are shown on the purchase screen. Purchases follow the relevant store’s payment, cancellation and refund rules, without affecting your statutory rights.',
                 'Uninstalling the app or deleting your ShiftCal account does not automatically cancel a store subscription. Manage it in the subscription settings of the Apple App Store or Google Play account used for purchase.',
             ],

@@ -56,10 +56,10 @@ class PurchaseController extends Controller
             AppUser::whereKey($membership->id)->lockForUpdate()->firstOrFail();
             $purchase = Purchase::firstOrCreate([
                 'store_app_id' => $store->id, 'environment' => $verified['environment'], 'identity' => $verified['identity'],
-            ], ['app_id' => $app->id, 'user_id' => $request->user()->id, 'store_product_id' => $product->id, 'proof' => $verified['proof'], 'status' => $verified['status'], 'expires_at' => $verified['expires_at'], 'verified_at' => now()]);
+            ], ['app_id' => $app->id, 'user_id' => $request->user()->id, 'store_product_id' => $product->id, 'proof' => $verified['proof'], 'status' => $verified['status'], 'expires_at' => $verified['expires_at'], 'is_trial' => $verified['is_trial'] ?? false, 'auto_renews' => $verified['auto_renews'] ?? null, 'verified_at' => now()]);
             $purchase = Purchase::whereKey($purchase->id)->lockForUpdate()->firstOrFail();
             abort_unless($purchase->user_id === $request->user()->id && $purchase->app_id === $app->id, 409, 'Satın alma başka hesaba bağlı.');
-            $purchase->update(['store_product_id' => $product->id, 'proof' => $verified['proof'], 'status' => $verified['status'], 'expires_at' => $verified['expires_at'], 'verified_at' => now()]);
+            $purchase->update(['store_product_id' => $product->id, 'proof' => $verified['proof'], 'status' => $verified['status'], 'expires_at' => $verified['expires_at'], 'is_trial' => $verified['is_trial'] ?? false, 'auto_renews' => $verified['auto_renews'] ?? null, 'verified_at' => now()]);
 
             return $purchase;
         });

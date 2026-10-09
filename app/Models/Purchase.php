@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['app_id', 'user_id', 'store_app_id', 'store_product_id', 'environment', 'identity', 'proof', 'status', 'expires_at', 'verified_at', 'next_check_at', 'check_failures', 'last_check_error'])]
+#[Fillable(['app_id', 'user_id', 'store_app_id', 'store_product_id', 'environment', 'identity', 'proof', 'status', 'expires_at', 'verified_at', 'next_check_at', 'check_failures', 'last_check_error', 'is_trial', 'auto_renews'])]
 #[Hidden(['proof', 'identity'])]
 class Purchase extends Model
 {
@@ -18,7 +18,7 @@ class Purchase extends Model
 
     protected function casts(): array
     {
-        return ['proof' => 'encrypted', 'expires_at' => 'datetime', 'verified_at' => 'datetime', 'next_check_at' => 'datetime'];
+        return ['is_trial' => 'boolean', 'auto_renews' => 'boolean', 'proof' => 'encrypted', 'expires_at' => 'datetime', 'verified_at' => 'datetime', 'next_check_at' => 'datetime'];
     }
 
     public function storeProduct(): BelongsTo

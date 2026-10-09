@@ -81,6 +81,7 @@ class StoreVerifier
         $this->owner($tx['appAccountToken'] ?? null, $membership->billing_account_id);
         abort_unless(($tx['bundleId'] ?? null) === $store->identifier && ($tx['environment'] ?? null) === ($sandbox ? 'Sandbox' : 'Production') && ($tx['type'] ?? null) === 'Auto-Renewable Subscription', 422, 'Apple abonelik eşleşmesi geçersiz.');
         $expiry = CarbonImmutable::createFromTimestampMs($tx['expiresDate'] ?? 0);
+        $renewal = ! empty($latest['signedRenewalInfo']) ? StoreJwt::appleResponsePayload($latest['signedRenewalInfo']) : [];
         $status = [1 => 'active', 2 => 'expired', 3 => 'billing_retry', 4 => 'grace', 5 => 'revoked'][$latest['status'] ?? 0] ?? 'unknown';
         if ($status === 'grace') {
             $renewal = StoreJwt::appleResponsePayload($latest['signedRenewalInfo'] ?? '');
@@ -96,7 +97,7 @@ class StoreVerifier
             $status = 'revoked';
         }
 
-        return ['identity' => $original, 'product_id' => $tx['productId'] ?? '', 'base_plan_id' => '', 'environment' => $sandbox ? 'sandbox' : 'production', 'status' => $status, 'expires_at' => $expiry, 'active' => in_array($status, ['active', 'grace', 'canceled'], true) && $expiry->isFuture(), 'proof' => $input['transaction_id']];
+        return ['identity' => $original, 'product_id' => $tx['productId'] ?? '', 'base_plan_id' => '', 'environment' => $sandbox ? 'sandbox' : 'production', 'status' => $status, 'expires_at' => $expiry, 'active' => in_array($status, ['active', 'grace', 'canceled'], true) && $expiry->isFuture(), 'proof' => $input['transaction_id'], 'is_trial' => ($tx['offerType'] ?? null) === 1 && ($tx['offerDiscountType'] ?? null) === 'FREE_TRIAL', 'auto_renews' => isset($renewal['autoRenewStatus']) ? $renewal['autoRenewStatus'] === 1 : null];
     }
 
     private function google(StoreApp $store, AppUser $membership, array $input): array
@@ -127,6 +128,8 @@ class StoreVerifier
         };
 
         return ['identity' => hash('sha256', $token), 'product_id' => $item['productId'], 'base_plan_id' => $item['offerDetails']['basePlanId'] ?? '', 'environment' => $sandbox ? 'sandbox' : 'production', 'status' => $status, 'expires_at' => $expiry, 'active' => in_array($status, ['active', 'grace', 'canceled'], true) && $expiry->isFuture(), 'proof' => $token,
+            'is_trial' => ($item['offerPhase']['freeTrial'] ?? null) !== null,
+            'auto_renews' => isset($item['autoRenewingPlan']['autoRenewEnabled']) ? (bool) $item['autoRenewingPlan']['autoRenewEnabled'] : null,
             'acknowledgement_pending' => ($body['acknowledgementState'] ?? '') === 'ACKNOWLEDGEMENT_STATE_PENDING', 'access_token' => $oauth['access_token']];
     }
 

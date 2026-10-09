@@ -11,12 +11,13 @@ class EntitlementController extends Controller
 {
     public function __invoke(Request $request, FeatureAccess $access): JsonResponse
     {
-        $rights = $access->forUser($request->attributes->get('mobile_app'), $request->user());
+        $summary = $access->summary($request->attributes->get('mobile_app'), $request->user());
+        $rights = $summary['rights'];
         $features = [];
         foreach ($rights as $key => $expires) {
             $features[] = ['key' => $key, 'expires_at' => $expires];
         }
 
-        return response()->json(['data' => ['app' => $request->attributes->get('mobile_app')->slug, 'has_paid_access' => count($features) > 0, 'features' => $features]])->header('Cache-Control', 'private, no-store');
+        return response()->json(['data' => ['app' => $request->attributes->get('mobile_app')->slug, 'has_paid_access' => count($features) > 0, 'features' => $features, 'subscriptions' => $summary['subscriptions']]])->header('Cache-Control', 'private, no-store');
     }
 }

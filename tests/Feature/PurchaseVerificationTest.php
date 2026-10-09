@@ -81,6 +81,17 @@ class PurchaseVerificationTest extends TestCase
         $this->assertSame('secret-purchase-token', Purchase::sole()->proof);
     }
 
+    public function test_google_trial_metadata_comes_from_verified_store_phase(): void
+    {
+        $this->google(['lineItems' => [['offerPhase' => ['freeTrial' => []], 'autoRenewingPlan' => ['autoRenewEnabled' => true]]]]);
+        $payload = ['platform' => 'android', 'purchase_token' => 'trial-token'];
+        $this->postJson($this->prefix.'/purchases/verify', $payload)->assertOk()
+            ->assertJsonPath('data.is_trial', true)->assertJsonPath('data.auto_renews', true);
+        $this->google(['lineItems' => [['offerPhase' => ['basePrice' => []], 'autoRenewingPlan' => ['autoRenewEnabled' => false]]]]);
+        $this->postJson($this->prefix.'/purchases/restore', $payload)->assertOk()
+            ->assertJsonPath('data.is_trial', false)->assertJsonPath('data.auto_renews', false);
+    }
+
     public function test_wrong_owner_and_unknown_product_do_not_grant_purchase(): void
     {
         $this->google(['externalAccountIdentifiers' => ['obfuscatedExternalAccountId' => 'foreign']]);
@@ -134,13 +145,13 @@ class PurchaseVerificationTest extends TestCase
         $this->paths[] = $path;
         file_put_contents($path, $pem);
         config(['billing.apple' => ['issuer_id' => 'issuer', 'key_id' => 'key', 'private_key_path' => $path]]);
-        $tx = ['bundleId' => $this->store->identifier, 'environment' => 'Production', 'type' => 'Auto-Renewable Subscription', 'originalTransactionId' => '123', 'productId' => 'premium', 'appAccountToken' => $this->account, 'expiresDate' => now()->addYear()->getTimestampMs()];
+        $tx = ['bundleId' => $this->store->identifier, 'environment' => 'Production', 'type' => 'Auto-Renewable Subscription', 'originalTransactionId' => '123', 'productId' => 'premium', 'appAccountToken' => $this->account, 'expiresDate' => now()->addYear()->getTimestampMs(), 'offerType' => 1, 'offerDiscountType' => 'FREE_TRIAL'];
         $jws = StoreJwt::encode(['alg' => 'ES256'], $tx, $pem);
         Http::fake([
             'https://api.storekit.itunes.apple.com/inApps/v1/transactions/*' => Http::response(['signedTransactionInfo' => $jws]),
-            'https://api.storekit.itunes.apple.com/inApps/v1/subscriptions/*' => Http::response(['data' => [['lastTransactions' => [['originalTransactionId' => '123', 'status' => 1, 'signedTransactionInfo' => $jws]]]]]),
+            'https://api.storekit.itunes.apple.com/inApps/v1/subscriptions/*' => Http::response(['data' => [['lastTransactions' => [['originalTransactionId' => '123', 'status' => 1, 'signedTransactionInfo' => $jws, 'signedRenewalInfo' => StoreJwt::encode(['alg' => 'ES256'], ['autoRenewStatus' => 1], $pem)]]]]]),
         ]);
-        $this->postJson($this->prefix.'/purchases/restore', ['platform' => 'ios', 'transaction_id' => '123'])->assertOk()->assertJsonPath('data.is_active', true);
+        $this->postJson($this->prefix.'/purchases/restore', ['platform' => 'ios', 'transaction_id' => '123'])->assertOk()->assertJsonPath('data.is_active', true)->assertJsonPath('data.is_trial', true)->assertJsonPath('data.auto_renews', true);
         $this->assertSame('123', Purchase::sole()->identity);
     }
 

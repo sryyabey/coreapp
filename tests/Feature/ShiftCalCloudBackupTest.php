@@ -8,16 +8,19 @@ use App\Models\Device;
 use App\Models\ShiftCal\CloudBackup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\GrantsShiftCalDuo;
 use Tests\TestCase;
 
 class ShiftCalCloudBackupTest extends TestCase
 {
+    use GrantsShiftCalDuo;
     use RefreshDatabase;
 
     private string $url = '/api/v1/apps/shiftcal/shiftcal/cloud-backup';
 
     private function signIn(AppUser $membership): void
     {
+        $this->grantDuo($membership);
         $this->app['auth']->forgetGuards();
         $device = Device::factory()->create(['app_id' => $membership->app_id, 'user_id' => $membership->user_id]);
         $token = $membership->user->createToken('phone', ['app:'.$membership->app_id]);

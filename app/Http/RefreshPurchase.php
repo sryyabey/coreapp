@@ -46,7 +46,7 @@ class RefreshPurchase
         }
         DB::transaction(function () use ($purchase, $product, $verified, $next): void {
             $locked = Purchase::whereKey($purchase->id)->lockForUpdate()->firstOrFail();
-            $locked->update(['store_product_id' => $product->id, 'proof' => $verified['proof'], 'status' => $verified['status'], 'expires_at' => $verified['expires_at'], 'verified_at' => now(), 'next_check_at' => $next, 'check_failures' => 0, 'last_check_error' => null]);
+            $locked->update(['store_product_id' => $product->id, 'proof' => $verified['proof'], 'status' => $verified['status'], 'expires_at' => $verified['expires_at'], 'is_trial' => $verified['is_trial'] ?? false, 'auto_renews' => $verified['auto_renews'] ?? null, 'verified_at' => now(), 'next_check_at' => $next, 'check_failures' => 0, 'last_check_error' => null]);
         });
     }
 }

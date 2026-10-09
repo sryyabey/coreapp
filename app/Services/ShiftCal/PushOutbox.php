@@ -3,7 +3,10 @@
 namespace App\Services\ShiftCal;
 
 use App\Http\Controllers\Api\V1\ShiftCal\NotificationController;
+use App\Http\FeatureAccess;
 use App\Jobs\SendShiftCalPush;
+use App\Models\App;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -44,6 +47,11 @@ class PushOutbox
         $link = DB::table('shiftcal_partner_links')->where('app_id', $event->app_id)->where('user_id', $event->user_id)->first();
         if ($event->type === 'disconnected') {
             return $link === null;
+        }
+        $app = App::find($event->app_id);
+        $user = User::find($event->user_id);
+        if (! $app || ! $user || ! app(FeatureAccess::class)->allows($app, $user, 'shiftcal.together')) {
+            return false;
         }
         if (! $link || $link->connection_id !== $event->connection_id) {
             return false;
