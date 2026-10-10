@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class StoreVerifier
@@ -35,6 +36,14 @@ class StoreVerifier
 
     private function json(Response $response): array
     {
+        if (! $response->successful()) {
+            Log::warning('billing.store_request_failed', [
+                'http_status' => $response->status(),
+                'error_code' => $response->json('errorCode') ?? $response->json('error.code'),
+                'error_status' => $response->json('error.status'),
+                'error_reason' => $response->json('error.errors.0.reason') ?? $response->json('error.details.0.reason'),
+            ]);
+        }
         if (in_array($response->status(), [400, 404, 410], true)) {
             throw ValidationException::withMessages(['purchase' => 'Satın alma mağazada doğrulanamadı.']);
         }
