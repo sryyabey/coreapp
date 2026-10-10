@@ -21,6 +21,16 @@ class Purchase extends Model
         return ['is_trial' => 'boolean', 'auto_renews' => 'boolean', 'proof' => 'encrypted', 'expires_at' => 'datetime', 'verified_at' => 'datetime', 'next_check_at' => 'datetime'];
     }
 
+    public function app(): BelongsTo
+    {
+        return $this->belongsTo(App::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function storeProduct(): BelongsTo
     {
         return $this->belongsTo(StoreProduct::class);

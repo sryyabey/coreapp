@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Resources\Purchases\PurchaseResource;
+use App\Filament\Resources\StoreNotifications\StoreNotificationResource;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
@@ -186,6 +188,8 @@ return [
     'resources' => [
         'subject' => 'model',
         'manage' => [
+            PurchaseResource::class => ['viewAny', 'view'],
+            StoreNotificationResource::class => ['viewAny', 'view'],
             RoleResource::class => [
                 'viewAny',
                 'view',
