@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PurchaseController extends Controller
@@ -41,6 +42,11 @@ class PurchaseController extends Controller
     public function verify(VerifyPurchaseRequest $request, StoreVerifier $verifier): PurchaseResource
     {
         $app = $request->attributes->get('mobile_app');
+        Log::warning('billing.purchase_request_received', [
+            'app' => $app->slug,
+            'platform' => $request->validated('platform'),
+            'diagnostic_version' => 2,
+        ]);
         $store = StoreApp::where('app_id', $app->id)->where('platform', $request->validated('platform'))->firstOrFail();
 
         return Cache::lock('billing-store:'.$store->id, 120)->block(5, fn (): PurchaseResource => $this->verifyLocked($request, $verifier, $store));

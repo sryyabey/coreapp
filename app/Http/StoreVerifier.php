@@ -10,15 +10,21 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class StoreVerifier
 {
     public function verify(StoreApp $store, AppUser $membership, array $input): array
     {
+        Log::warning('billing.verification_started', ['platform' => $store->platform, 'store_app_id' => $store->id, 'diagnostic_version' => 2]);
         try {
             return $store->platform === 'ios' ? $this->apple($store, $membership, $input) : $this->google($store, $membership, $input);
         } catch (ConnectionException $exception) {
+            Log::warning('billing.store_connection_failed', ['platform' => $store->platform]);
             abort(503, 'Mağazaya şu anda ulaşılamıyor.');
+        } catch (HttpExceptionInterface $exception) {
+            Log::warning('billing.verification_rejected', ['platform' => $store->platform, 'http_status' => $exception->getStatusCode()]);
+            throw $exception;
         }
     }
 
