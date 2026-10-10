@@ -13,6 +13,11 @@ return [
         'shiftcal' => [
             'allow_sandbox' => env('SHIFTCAL_BILLING_ALLOW_SANDBOX', false),
             'feature_environment' => env('SHIFTCAL_BILLING_FEATURE_ENVIRONMENT', 'production'),
+            'apple' => [
+                'issuer_id' => env('SHIFTCAL_APPLE_IAP_ISSUER_ID', env('APPLE_IAP_ISSUER_ID')),
+                'key_id' => env('SHIFTCAL_APPLE_IAP_KEY_ID', env('APPLE_IAP_KEY_ID')),
+                'private_key_path' => env('SHIFTCAL_APPLE_IAP_PRIVATE_KEY_PATH', env('APPLE_IAP_PRIVATE_KEY_PATH')),
+            ],
         ],
     ],
 ];
