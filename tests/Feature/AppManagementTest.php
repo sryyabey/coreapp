@@ -13,6 +13,7 @@ use App\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -70,5 +71,34 @@ class AppManagementTest extends TestCase
         auth()->user()->revokePermissionTo('ViewAny:AppUser');
         $this->assertFalse(AppMembershipsRelationManager::canViewForRecord($app, EditApp::class));
         $this->assertTrue(StoreAppsRelationManager::canViewForRecord($app, EditApp::class));
+    }
+
+    public function test_password_reset_hashes_password_and_revokes_api_tokens(): void
+    {
+        $membership = AppUser::factory()->create();
+        $user = $membership->user;
+        $user->createToken('phone');
+
+        Livewire::test(ListAppUsers::class)
+            ->callAction(TestAction::make('resetPassword')->table($membership), data: ['password' => 'NewSecurePassword!123'])
+            ->assertHasNoActionErrors();
+
+        $this->assertTrue(Hash::check('NewSecurePassword!123', $user->fresh()->password));
+        $this->assertSame(0, $user->tokens()->count());
+    }
+
+    public function test_password_reset_rejects_short_password_and_requires_update_permission(): void
+    {
+        $membership = AppUser::factory()->create();
+        $original = $membership->user->password;
+
+        Livewire::test(ListAppUsers::class)
+            ->callAction(TestAction::make('resetPassword')->table($membership), data: ['password' => 'short'])
+            ->assertHasActionErrors(['password' => 'min']);
+        $this->assertSame($original, $membership->user->fresh()->password);
+
+        auth()->user()->revokePermissionTo('Update:AppUser');
+        Livewire::test(ListAppUsers::class)
+            ->assertActionHidden(TestAction::make('resetPassword')->table($membership));
     }
 }

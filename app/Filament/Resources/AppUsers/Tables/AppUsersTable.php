@@ -5,11 +5,15 @@ namespace App\Filament\Resources\AppUsers\Tables;
 use App\Models\AppUser;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AppUsersTable
 {
@@ -27,10 +31,36 @@ class AppUsersTable
             TernaryFilter::make('is_active')->label('Aktiflik')->trueLabel('Aktif')->falseLabel('Pasif'),
         ])->recordActions([
             EditAction::make(),
+            self::resetPasswordAction(),
             Action::make('toggleMembership')->label(fn (AppUser $record): string => $record->is_active ? 'Pasife al' : 'Aktifleştir')
                 ->requiresConfirmation()->visible(fn (AppUser $record): bool => auth()->user()->can('update', $record))
                 ->authorize(fn (AppUser $record): bool => auth()->user()->can('update', $record))
                 ->action(fn (AppUser $record): bool => $record->update(['is_active' => ! $record->is_active])),
         ])->defaultSort('joined_at', 'desc');
+    }
+
+    public static function resetPasswordAction(): Action
+    {
+        return Action::make('resetPassword')
+            ->label('Şifre yenile / üret')
+            ->modalHeading('Kullanıcı şifresini yenile')
+            ->modalDescription('Bu şifre ortak kullanıcı hesabının tüm uygulamalarında geçerlidir. Mevcut API oturumları kapatılır. Yeni şifreyi kaydetmeden önce kopyalayın; e-posta gönderilmez.')
+            ->modalSubmitActionLabel('Şifreyi kaydet')
+            ->visible(fn (AppUser $record): bool => auth()->user()->can('update', $record))
+            ->authorize(fn (AppUser $record): bool => auth()->user()->can('update', $record))
+            ->schema([
+                TextInput::make('password')->label('Yeni şifre')->password()->revealable()
+                    ->default(fn (): string => Str::password(20))->required()->minLength(12)->maxLength(128)
+                    ->helperText('Otomatik oluşturulan şifreyi kullanabilir veya en az 12 karakterlik bir şifre yazabilirsiniz.'),
+            ])
+            ->action(function (AppUser $record, array $data): void {
+                DB::transaction(function () use ($record, $data): void {
+                    $user = $record->user()->lockForUpdate()->firstOrFail();
+                    $user->forceFill(['password' => $data['password'], 'remember_token' => Str::random(60)])->save();
+                    $user->tokens()->delete();
+                });
+
+                Notification::make()->title('Kullanıcı şifresi yenilendi')->success()->send();
+            });
     }
 }

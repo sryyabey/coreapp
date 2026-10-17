@@ -93,7 +93,7 @@ return [
         'faqs' => [
             [
                 'Ücretsiz kullanabilir miyim?',
-                '16:8 takibi, geçmiş, temel istatistikler, tema ve dosya yedekleme ücretsiz kullanım kapsamında. Ek planlar ve ana ekran widget’ı Premium özellikleri olarak hazırlanıyor; mevcut sürümde uygulama içi satın alma henüz aktif değil.',
+                'Kapalı test süresince tüm planlar ve ana ekran widget’ı ücretsiz ve erişime açık. Genel yayın için 16:8 takibi, geçmiş, temel istatistikler, tema ve dosya yedekleme ücretsiz; ek planlar ve widget Premium özellikleri olarak planlanıyor; mevcut sürümde uygulama içi satın alma henüz aktif değil.',
             ],
             [
                 'Oruç hedefi dolunca ne olur?',
@@ -209,7 +209,7 @@ return [
         'faqs' => [
             [
                 'Can I use it for free?',
-                '16:8 tracking, history, basic statistics, appearance and file backups are included in free use. Additional plans and the home screen widget are being prepared as Premium features; in-app purchases are not yet active in the current version.',
+                'All plans and the home screen widget are unlocked for free during closed testing. For public release, 16:8 tracking, history, basic statistics, appearance and file backups are planned as free features, with additional plans and the widget planned for Premium; in-app purchases are not yet active in the current version.',
             ],
             [
                 'What happens when the fasting target is reached?',
@@ -325,7 +325,7 @@ return [
         'faqs' => [
             [
                 'Kann ich die App kostenlos nutzen?',
-                '16:8-Erfassung, Verlauf, grundlegende Statistiken, Darstellung und Dateisicherungen sind kostenlos enthalten. Zusätzliche Pläne und das Startbildschirm-Widget werden als Premium-Funktionen vorbereitet; In-App-Käufe sind in der aktuellen Version noch nicht aktiv.',
+                'Im geschlossenen Test sind alle Pläne und das Startbildschirm-Widget kostenlos freigeschaltet. Für die öffentliche Veröffentlichung sind 16:8-Erfassung, Verlauf, grundlegende Statistiken, Darstellung und Dateisicherungen kostenlos geplant; zusätzliche Pläne und das Widget sind als Premium-Funktionen vorgesehen; In-App-Käufe sind in der aktuellen Version noch nicht aktiv.',
             ],
             [
                 'Was passiert, wenn das Fastenziel erreicht ist?',
