@@ -74,16 +74,31 @@
     </div></section>
     <section id="projects" class="section projects"><div class="container">
         <div class="section-heading split-heading project-heading"><div><span class="section-index">{{ $copy['projects']['index'] }}</span><h2>{{ $copy['projects']['title'] }}</h2></div><p>{{ $copy['projects']['intro'] }}</p></div>
-        <div class="project-carousel" data-project-carousel>
-            <div class="project-list" role="region" aria-label="{{ $copy['projects']['carouselLabel'] }}" tabindex="0" data-project-track>
-                @foreach ($copy['projects']['items'] as $project)
-                    <article class="project-feature project-{{ $loop->iteration }} project-{{ $project['slug'] }}" data-project-slide>
-                        <div class="project-copy"><div><span class="project-type">{{ $project['type'] }}</span><h3>{{ $project['name'] }}</h3><p>{{ $project['description'] }}</p></div><div class="project-card-actions">@if ($project['details_available'] ?? true)<a href="https://sryya.dev/{{ $language === 'tr' ? '' : $language.'/' }}projects/{{ $project['slug'] }}/">{{ $copy['projects']['visit'] }}<span aria-hidden="true">↗</span></a>@endif @if (!$project['url'])<span class="project-note">{{ $project['note'] }}</span>@endif</div></div>
-                        <div class="project-art" aria-label="{{ $project['name'] }}"><div class="project-logo-wrap"><img src="{{ asset(ltrim($project['logo'], '/')) }}" alt="{{ $project['name'] }} logo" width="700" height="700" loading="lazy" decoding="async"></div><small class="project-art-note">{{ $project['note'] }}</small><div class="project-lines" aria-hidden="true"><i></i><i></i><i></i></div></div>
-                    </article>
-                @endforeach
-            </div>
-            <div class="carousel-footer"><span class="carousel-count" aria-live="polite"><b data-project-current>01</b><i></i><span>{{ str_pad(count($copy['projects']['items']), 2, '0', STR_PAD_LEFT) }}</span></span><div class="carousel-actions"><button type="button" aria-label="{{ $copy['projects']['previous'] }}" data-project-prev disabled>←</button><button type="button" aria-label="{{ $copy['projects']['next'] }}" data-project-next>→</button></div></div>
+        <div class="catalog-toolbar"><span>{{ $copy['projects']['catalogLabel'] }}</span><span>{{ count($copy['projects']['items']) }} {{ $copy['projects']['countLabel'] }}</span></div>
+        <div class="product-catalog">
+            @foreach ($copy['projects']['items'] as $project)
+                @php
+                    $status = $project['status'] ?? ($project['url'] ? 'live' : 'development');
+                    $productUrl = isset($project['route'])
+                        ? route($project['route'], $language === 'tr' || $language === 'ru' && $project['route'] === 'minimal-fasting' ? [] : ['lang' => $language])
+                        : ($project['url'] ?: (($project['details_available'] ?? true) ? 'https://sryya.dev/'.($language === 'tr' ? '' : $language.'/').'projects/'.$project['slug'].'/' : null));
+                @endphp
+                <article class="product-card product-{{ $project['slug'] }}">
+                    <div class="product-card-top">
+                        <img class="product-icon" src="{{ asset(ltrim($project['logo'], '/')) }}" alt="" width="72" height="72" loading="lazy" decoding="async">
+                        <span class="product-status status-{{ $status }}"><i aria-hidden="true"></i>{{ $copy['projects'][$status.'Label'] }}</span>
+                    </div>
+                    <span class="product-category">{{ $project['type'] }}</span>
+                    <h3>{{ $project['name'] }}</h3>
+                    <p>{{ $project['description'] }}</p>
+                    <div class="product-card-bottom">
+                        <span>{{ $project['note'] }}</span>
+                        @if ($productUrl)
+                            <a href="{{ $productUrl }}" aria-label="{{ $project['name'] }} — {{ $copy['projects']['visit'] }}">{{ $copy['projects']['visit'] }} <span aria-hidden="true">↗</span></a>
+                        @endif
+                    </div>
+                </article>
+            @endforeach
         </div>
     </div></section>
     <section id="about" class="section about"><div class="container about-layout">
