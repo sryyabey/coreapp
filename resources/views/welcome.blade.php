@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
     <link rel="canonical" href="{{ route('home', $language === 'tr' ? [] : ['lang' => $language]) }}">
-    @foreach (['tr', 'en', 'ru'] as $locale)
+    @foreach (['tr', 'en', 'de', 'ru'] as $locale)
         <link rel="alternate" hreflang="{{ $locale }}" href="{{ route('home', $locale === 'tr' ? [] : ['lang' => $locale]) }}">
     @endforeach
     <link rel="alternate" hreflang="x-default" href="{{ route('home') }}">
@@ -26,7 +26,7 @@
     @vite(['resources/css/studio.css', 'resources/js/studio.js'])
 </head>
 <body>
-<a class="skip-link" href="#top">{{ ['tr' => 'İçeriğe geç', 'en' => 'Skip to content', 'ru' => 'Перейти к содержанию'][$language] }}</a>
+<a class="skip-link" href="#top">{{ ['tr' => 'İçeriğe geç', 'en' => 'Skip to content', 'de' => 'Zum Inhalt springen', 'ru' => 'Перейти к содержанию'][$language] }}</a>
 <header class="site-header" data-header>
     <div class="container nav-wrap">
         <a class="brand" href="#top" aria-label="{{ $copy['nav']['homeLabel'] }}"><img src="{{ asset('images/sryyalabs-logo.webp') }}" alt="SryyaLabs" width="2172" height="724"></a>
@@ -37,7 +37,7 @@
             @endforeach
             <a href="https://sryya.dev/{{ $language === 'tr' ? '' : $language.'/' }}blog/">{{ $copy['nav']['blog'] }}</a>
             <div class="language-switch" aria-label="{{ $copy['nav']['languageLabel'] }}">
-                @foreach (['tr', 'en', 'ru'] as $locale)
+                @foreach (['tr', 'en', 'de', 'ru'] as $locale)
                     <a href="{{ route('home', $locale === 'tr' ? [] : ['lang' => $locale]) }}" class="{{ $language === $locale ? 'active' : '' }}" lang="{{ $locale }}" @if($language === $locale) aria-current="page" @endif>{{ strtoupper($locale) }}</a>
                 @endforeach
             </div>
