@@ -105,6 +105,16 @@ return [
             'developmentLabel' => 'Geliştiriliyor',
             'testingLabel' => 'Test aşamasında',
             'items' => [
+                5 => [
+                    'slug' => 'liik',
+                    'name' => 'Liik',
+                    'type' => 'Mobil Uygulama · Profil ve Randevu',
+                    'description' => 'Yapay zekâ ile profesyonel profilinizi oluşturun, bağlantılarınızı tek yerde paylaşın ve online randevularınızı mobil uygulama ve web panelinden yönetin.',
+                    'url' => 'https://liik.net/',
+                    'status' => 'development',
+                    'logo' => '/images/projects/liik-logo.png',
+                    'note' => 'Profil · Bağlantılar · Randevu',
+                ],
                 4 => [
                     'slug' => 'minimal-fasting',
                     'name' => 'Minimal Fasting',
@@ -294,6 +304,16 @@ return [
             'developmentLabel' => 'In development',
             'testingLabel' => 'In testing',
             'items' => [
+                5 => [
+                    'slug' => 'liik',
+                    'name' => 'Liik',
+                    'type' => 'Mobile App · Profiles & Appointments',
+                    'description' => 'Create your professional profile with AI, share your links in one place and manage online appointments from the mobile app and web dashboard.',
+                    'url' => 'https://liik.net/',
+                    'status' => 'development',
+                    'logo' => '/images/projects/liik-logo.png',
+                    'note' => 'Profile · Links · Appointments',
+                ],
                 4 => [
                     'slug' => 'minimal-fasting',
                     'name' => 'Minimal Fasting',
@@ -483,6 +503,16 @@ return [
             'developmentLabel' => 'In Entwicklung',
             'testingLabel' => 'In der Testphase',
             'items' => [
+                5 => [
+                    'slug' => 'liik',
+                    'name' => 'Liik',
+                    'type' => 'Mobile App · Profile & Termine',
+                    'description' => 'Erstellen Sie Ihr berufliches Profil mit KI, teilen Sie Ihre Links an einem Ort und verwalten Sie Online-Termine in der App und im Web-Dashboard.',
+                    'url' => 'https://liik.net/',
+                    'status' => 'development',
+                    'logo' => '/images/projects/liik-logo.png',
+                    'note' => 'Profil · Links · Termine',
+                ],
                 4 => [
                     'slug' => 'minimal-fasting',
                     'name' => 'Minimal Fasting',
@@ -672,6 +702,16 @@ return [
             'developmentLabel' => 'В разработке',
             'testingLabel' => 'Тестирование',
             'items' => [
+                5 => [
+                    'slug' => 'liik',
+                    'name' => 'Liik',
+                    'type' => 'Мобильное приложение · Профиль и запись',
+                    'description' => 'Создайте профессиональный профиль с помощью ИИ, соберите ссылки в одном месте и управляйте онлайн-записью в мобильном приложении и веб-панели.',
+                    'url' => 'https://liik.net/',
+                    'status' => 'development',
+                    'logo' => '/images/projects/liik-logo.png',
+                    'note' => 'Профиль · Ссылки · Запись',
+                ],
                 4 => [
                     'slug' => 'minimal-fasting',
                     'name' => 'Minimal Fasting',
