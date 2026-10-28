@@ -93,8 +93,22 @@
                     <p>{{ $project['description'] }}</p>
                     <div class="product-card-bottom">
                         <span>{{ $project['note'] }}</span>
+                        @if (!empty($project['store_links']))
+                            <div class="product-store-links">
+                                @foreach ($project['store_links'] as $storeName => $storeUrl)
+                                    <a class="store-link" href="{{ $storeUrl }}" aria-label="{{ $project['name'] }} — {{ $storeName }}">
+                                        @if ($storeName === 'Google Play')
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#34a853" d="M3 2.5 14 12 3 21.5Z"/><path fill="#4285f4" d="m3 2.5 13.5 7.4L14 12Z"/><path fill="#fbbc04" d="m14 12 2.5-2.1 4 2.1-4 2.1Z"/><path fill="#ea4335" d="M3 21.5 14 12l2.5 2.1Z"/></svg>
+                                        @else
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.1 12.4c0-2 1.6-3 1.7-3.1-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-2.9-.7-1.5 0-2.9.9-3.7 2.2-1.6 2.7-.4 6.8 1.1 9 .7 1.1 1.6 2.2 2.8 2.1 1.1 0 1.6-.7 3-.7 1.3 0 1.7.7 2.9.7s2-1.1 2.7-2.1c.9-1.2 1.3-2.5 1.3-2.6-.1 0-2.3-.9-2.3-3.9ZM14.9 6.2c.6-.8 1.1-1.9 1-3-.9 0-2 .6-2.7 1.4-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></svg>
+                                        @endif
+                                        <span>{{ $storeName }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                         @if ($productUrl)
-                            <a href="{{ $productUrl }}" aria-label="{{ $project['name'] }} — {{ $copy['projects']['visit'] }}">{{ $copy['projects']['visit'] }} <span aria-hidden="true">↗</span></a>
+                            <a class="product-visit" href="{{ $productUrl }}" aria-label="{{ $project['name'] }} — {{ $copy['projects']['visit'] }}">{{ $copy['projects']['visit'] }} <span aria-hidden="true">↗</span></a>
                         @endif
                     </div>
                 </article>
