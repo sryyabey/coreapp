@@ -1,17 +1,20 @@
 <!doctype html>
-<html lang="tr">
+<html lang="{{ $language }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#126c56">
-    <title>ClaryFlow’u İndir · App Store ve Google Play</title>
-    <meta name="description" content="ClaryFlow’u iPhone veya Android cihazına indir. Farkındalık ve dengeli rutinlere ilk adımını at.">
-    <link rel="canonical" href="{{ route('claryflow') }}">
+    <title>{{ $copy['title'] }}</title>
+    <meta name="description" content="{{ $copy['description'] }}">
+    <link rel="canonical" href="{{ route('claryflow', ['lang' => $language]) }}">
     <link rel="icon" href="{{ asset('images/projects/claryflow-logo.png') }}">
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 28px 20px; background: radial-gradient(ellipse at top, #dceee1, #f6f8f3 65%); color: #183e33; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
         main { width: 100%; max-width: 540px; text-align: center; padding: 48px 32px; border: 1px solid #dde6dc; border-radius: 32px; background: #ffffffec; box-shadow: 0 24px 80px #1846330d; }
+        .languages { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; margin-bottom: 28px; font-size: 13px; }
+        .languages a { color: #61756c; text-decoration: none; padding: 6px 0; }
+        .languages [aria-current] { color: #126c56; font-weight: 700; border-bottom: 2px solid; }
         .logo { width: 96px; height: 96px; object-fit: contain; border-radius: 24px; }
         .brand { margin: 20px 0 12px; font-size: 14px; font-weight: 700; letter-spacing: .12em; }
         h1 { margin: 0; font-size: clamp(34px, 8vw, 48px); line-height: 1.12; letter-spacing: -.045em; }
@@ -30,17 +33,22 @@
 </head>
 <body>
 <main>
+    <nav class="languages" aria-label="{{ $copy['language'] }}">
+        @foreach (['en' => 'English', 'tr' => 'Türkçe', 'de' => 'Deutsch'] as $locale => $label)
+            <a href="{{ route('claryflow', array_merge(request()->query(), ['lang' => $locale])) }}" lang="{{ $locale }}" hreflang="{{ $locale }}" @if ($language === $locale) aria-current="page" @endif>{{ $label }}</a>
+        @endforeach
+    </nav>
     <img class="logo" src="{{ asset('images/projects/claryflow-logo.png') }}" alt="ClaryFlow" width="96" height="96">
     <p class="brand">CLARYFLOW</p>
-    <h1>Kendine bir<br>an ayır.</h1>
-    <p class="intro">Farkındalığa ve dengeli rutinlere ilk adımını at. ClaryFlow’u indir, kendine zaman aç.</p>
-    <div class="stores" aria-label="Uygulamayı indir">
-        <a class="store" id="ios-store" href="https://apps.apple.com/tr/app/claryflow/id6786839637"><span><small>iPhone ve iPad için</small><strong>App Store’dan indir</strong></span><span aria-hidden="true">↗</span></a>
-        <a class="store secondary" id="android-store" href="https://play.google.com/store/apps/details?id=com.claryflow.app"><span><small>Android için</small><strong>Google Play’den indir</strong></span><span aria-hidden="true">↗</span></a>
+    <h1>{{ $copy['heading'] }}</h1>
+    <p class="intro">{{ $copy['intro'] }}</p>
+    <div class="stores" aria-label="{{ $copy['download'] }}">
+        <a class="store" id="ios-store" href="https://apps.apple.com/tr/app/claryflow/id6786839637"><span><small>{{ $copy['ios'] }}</small><strong>{{ $copy['app_store'] }}</strong></span><span aria-hidden="true">↗</span></a>
+        <a class="store secondary" id="android-store" href="https://play.google.com/store/apps/details?id=com.claryflow.app"><span><small>{{ $copy['android'] }}</small><strong>{{ $copy['google_play'] }}</strong></span><span aria-hidden="true">↗</span></a>
     </div>
-    <p class="status" id="store-status" role="status">Cihazına uygun mağazayı seçerek ClaryFlow’u indirebilirsin.</p>
-    <noscript><p class="status">İndirmek için yukarıdaki mağaza butonlarından birine dokun.</p></noscript>
-    <footer>ClaryFlow · Kendin için küçük bir adım.</footer>
+    <p class="status" id="store-status" role="status">{{ $copy['status'] }}</p>
+    <noscript><p class="status">{{ $copy['noscript'] }}</p></noscript>
+    <footer>{{ $copy['footer'] }}</footer>
 </main>
 <script>
     (() => {
@@ -56,7 +64,7 @@
         }
 
         document.getElementById('store-status').textContent =
-            `${isAndroid ? 'Google Play’e' : 'App Store’a'} yönlendiriliyorsun. Mağaza açılmazsa yukarıdaki butona dokun.`;
+            {{ Illuminate\Support\Js::from($copy['redirect']) }}.replace(':store', isAndroid ? 'Google Play' : 'App Store');
 
         const redirectTimer = window.setTimeout(() => window.location.replace(store.href), 1200);
         document.querySelectorAll('.store').forEach((link) => {
