@@ -1,3 +1,12 @@
+@php
+    $storeParams = ['lang' => $language, 'source' => 'manual'];
+    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'] as $key) {
+        $value = request()->query($key);
+        if (is_string($value)) {
+            $storeParams[$key] = mb_substr($value, 0, 200);
+        }
+    }
+@endphp
 <!doctype html>
 <html lang="{{ $language }}">
 <head>
@@ -43,8 +52,8 @@
     <h1>{{ $copy['heading'] }}</h1>
     <p class="intro">{{ $copy['intro'] }}</p>
     <div class="stores" aria-label="{{ $copy['download'] }}">
-        <a class="store" id="ios-store" href="https://apps.apple.com/tr/app/claryflow/id6786839637"><span><small>{{ $copy['ios'] }}</small><strong>{{ $copy['app_store'] }}</strong></span><span aria-hidden="true">↗</span></a>
-        <a class="store secondary" id="android-store" href="https://play.google.com/store/apps/details?id=com.claryflow.app"><span><small>{{ $copy['android'] }}</small><strong>{{ $copy['google_play'] }}</strong></span><span aria-hidden="true">↗</span></a>
+        <a class="store" id="ios-store" href="{{ route('claryflow.store', array_merge($storeParams, ['platform' => 'ios'])) }}"><span><small>{{ $copy['ios'] }}</small><strong>{{ $copy['app_store'] }}</strong></span><span aria-hidden="true">↗</span></a>
+        <a class="store secondary" id="android-store" href="{{ route('claryflow.store', array_merge($storeParams, ['platform' => 'android'])) }}"><span><small>{{ $copy['android'] }}</small><strong>{{ $copy['google_play'] }}</strong></span><span aria-hidden="true">↗</span></a>
     </div>
     <p class="status" id="store-status" role="status">{{ $copy['status'] }}</p>
     <noscript><p class="status">{{ $copy['noscript'] }}</p></noscript>
@@ -66,7 +75,9 @@
         document.getElementById('store-status').textContent =
             {{ Illuminate\Support\Js::from($copy['redirect']) }}.replace(':store', isAndroid ? 'Google Play' : 'App Store');
 
-        const redirectTimer = window.setTimeout(() => window.location.replace(store.href), 1200);
+        const automaticUrl = new URL(store.href);
+        automaticUrl.searchParams.set('source', 'automatic');
+        const redirectTimer = window.setTimeout(() => window.location.replace(automaticUrl.href), 1200);
         document.querySelectorAll('.store').forEach((link) => {
             link.addEventListener('click', () => window.clearTimeout(redirectTimer));
         });

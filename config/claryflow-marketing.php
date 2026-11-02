@@ -3,9 +3,9 @@
 return [
     'en' => [
         'title' => 'Download ClaryFlow · App Store and Google Play',
-        'description' => 'Download ClaryFlow for iPhone or Android. Take your first step toward mindfulness and balanced routines.',
+        'description' => 'Short, guided exercises for a moment of calm. Try your first 3 exercises free.',
         'heading' => 'Take a moment for yourself.',
-        'intro' => 'Take your first step toward mindfulness and balanced routines. Download ClaryFlow and make time for yourself.',
+        'intro' => 'Short, guided exercises for a moment of calm. Try your first 3 exercises free.',
         'download' => 'Download the app',
         'ios' => 'For iPhone and iPad',
         'android' => 'For Android',
@@ -19,9 +19,9 @@ return [
     ],
     'tr' => [
         'title' => 'ClaryFlow’u İndir · App Store ve Google Play',
-        'description' => 'ClaryFlow’u iPhone veya Android cihazına indir. Farkındalık ve dengeli rutinlere ilk adımını at.',
+        'description' => 'Sakin bir an için kısa, rehberli egzersizler. İlk 3 egzersizini ücretsiz dene.',
         'heading' => 'Kendine bir an ayır.',
-        'intro' => 'Farkındalığa ve dengeli rutinlere ilk adımını at. ClaryFlow’u indir, kendine zaman aç.',
+        'intro' => 'Sakin bir an için kısa, rehberli egzersizler. İlk 3 egzersizini ücretsiz dene.',
         'download' => 'Uygulamayı indir',
         'ios' => 'iPhone ve iPad için',
         'android' => 'Android için',
@@ -35,9 +35,9 @@ return [
     ],
     'de' => [
         'title' => 'ClaryFlow herunterladen · App Store und Google Play',
-        'description' => 'Lade ClaryFlow für iPhone oder Android herunter. Dein erster Schritt zu mehr Achtsamkeit und ausgewogenen Routinen.',
+        'description' => 'Kurze, angeleitete Übungen für einen Moment der Ruhe. Probiere deine ersten 3 Übungen kostenlos aus.',
         'heading' => 'Nimm dir einen Moment für dich.',
-        'intro' => 'Dein erster Schritt zu mehr Achtsamkeit und ausgewogenen Routinen. Lade ClaryFlow herunter und nimm dir Zeit für dich.',
+        'intro' => 'Kurze, angeleitete Übungen für einen Moment der Ruhe. Probiere deine ersten 3 Übungen kostenlos aus.',
         'download' => 'App herunterladen',
         'ios' => 'Für iPhone und iPad',
         'android' => 'Für Android',

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClaryflowMarketingController;
+use App\Http\Controllers\ClaryflowStoreController;
 use App\Http\Controllers\MinimalFastingMarketingController;
 use App\Http\Controllers\MinimalFastingPrivacyController;
 use App\Http\Controllers\ShiftCalMarketingController;
@@ -12,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', WelcomeController::class)->name('home');
 Route::get('/claryflow', ClaryflowMarketingController::class)->name('claryflow');
+Route::get('/claryflow/store/{platform}', ClaryflowStoreController::class)
+    ->whereIn('platform', ['ios', 'android'])
+    ->name('claryflow.store');
 Route::get('/shiftcal', ShiftCalMarketingController::class)->name('shiftcal');
 Route::get('/shiftcal/privacy', ShiftCalPrivacyController::class)->name('shiftcal.privacy');
 Route::get('/shiftcal/support', ShiftCalSupportController::class)->name('shiftcal.support');
