@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\EntitlementController;
 use App\Http\Controllers\Api\V1\ExternalSupportTicketController;
+use App\Http\Controllers\Api\V1\GuestSupportSessionController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Http\Controllers\Api\V1\ShiftCal\AccountDeletionController;
 use App\Http\Controllers\Api\V1\ShiftCal\CloudBackupController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\V1\ShiftCal\WageSettingController;
 use App\Http\Controllers\Api\V1\StoreNotificationController;
 use App\Http\Controllers\Api\V1\SupportNotificationController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
+use App\Http\Middleware\AuthenticateGuestSupport;
 use App\Http\Middleware\AuthenticateSupportIntegration;
 use App\Http\Middleware\EnsureAppMembership;
 use App\Http\Middleware\EnsureShiftCalApp;
@@ -96,3 +98,17 @@ Route::prefix('v1/integrations/{app}/support/users/{externalUser}')
         Route::post('tickets/{ticket}/messages', [$controller, 'message'])->whereUuid('ticket');
         Route::post('tickets/{ticket}/read', [$controller, 'read'])->whereUuid('ticket');
     });
+
+Route::prefix('v1/apps/{app}/support/guest')->middleware(ResolveMobileApp::class)->group(function (): void {
+    Route::post('session', GuestSupportSessionController::class)->middleware('throttle:support-guest-register');
+    Route::prefix('users/{externalUser}')->where(['externalUser' => '[a-f0-9-]{36}'])
+        ->middleware(['throttle:support-guest-api', AuthenticateGuestSupport::class])
+        ->group(function (): void {
+            $controller = ExternalSupportTicketController::class;
+            Route::get('tickets', [$controller, 'index']);
+            Route::post('tickets', [$controller, 'store']);
+            Route::get('tickets/{ticket}', [$controller, 'show'])->whereUuid('ticket');
+            Route::post('tickets/{ticket}/messages', [$controller, 'message'])->whereUuid('ticket');
+            Route::post('tickets/{ticket}/read', [$controller, 'read'])->whereUuid('ticket');
+        });
+});

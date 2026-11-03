@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'guest_apps' => ['minimal-fasting'],
     'minimal_fasting_email' => env('MINIMAL_FASTING_SUPPORT_EMAIL', 'info@sryya.dev'),
     'shiftcal_email' => env('SHIFTCAL_SUPPORT_EMAIL', 'info@sryya.dev'),
     'fcm' => [

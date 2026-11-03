@@ -26,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(20)->by('ip:'.$request->ip()),
             Limit::perMinute(5)->by('auth:'.$request->route('app').':'.(is_string($request->input('email')) ? mb_strtolower(trim($request->input('email'))) : '').':'.$request->ip()),
         ]);
+        RateLimiter::for('support-guest-register', fn (Request $request): Limit => Limit::perMinute(10)->by($request->route('app').':'.$request->ip()));
+        RateLimiter::for('support-guest-api', fn (Request $request): Limit => Limit::perMinute(60)->by($request->route('app').':'.$request->route('externalUser').':'.$request->ip()));
         RateLimiter::for('mobile-api', fn (Request $request): Limit => Limit::perMinute(120)->by($request->route('app').':'.$request->user()->id));
     }
 }

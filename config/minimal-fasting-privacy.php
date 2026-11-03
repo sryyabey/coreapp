@@ -4,7 +4,7 @@ return [
     'tr' => [
         'title' => 'Gizlilik Politikası',
         'description' => 'Minimal Fasting verilerinin cihazda saklanması, isteğe bağlı yedekleme, bildirimler ve verilerin silinmesi hakkında gizlilik politikası.',
-        'updated' => 'Son güncelleme: 14 Ekim 2026',
+        'updated' => 'Son güncelleme: 3 Kasım 2026',
         'intro' => 'Minimal Fasting, hesap açmadan oruç ve yeme sürelerini takip etmenizi sağlar. Bu politika mevcut uygulama sürümünü ve bu politika sayfasını kapsar.',
         'badges' => [
             'Hesap gerektirmez',
@@ -70,6 +70,7 @@ return [
                 'id' => 'support',
                 'title' => '8. Bize ulaşmanız ve haklarınız',
                 'paragraphs' => [
+                    'Destek ekranını açtığınızda, görüşmelerinize erişebilmeniz için bu kuruluma özel rastgele bir destek kimliği sunucuda kaydedilir. Talep gönderdiğinizde konu, mesaj, seçtiğiniz destek dili ve isteğe bağlı adınız ile e-posta adresiniz Coreapp destek sistemine iletilir. Yanıtlar aynı sistemde saklanır ve uygulamada yenileyerek okunabilir. Oruç kayıtları otomatik olarak gönderilmez. Uygulama verilerini silmek veya uygulamayı yeniden yüklemek destek geçmişinize erişimi kaybettirebilir; sunucudaki yazışmaları otomatik olarak silmez.',
                     'E-posta ile iletişime geçtiğinizde e-posta adresiniz, mesajınız ve gönderdiğiniz ekler talebinizi yanıtlamak için işlenir. Oruç geçmişinizi veya yedek dosyanızı destek almak için göndermek zorunda değilsiniz. Destek yazışmaları talebi ele almak ve geçerli yasal yükümlülükleri yerine getirmek için gerektiği ölçüde saklanır.',
                     'Bize ilettiğiniz kişisel veriler hakkında bilgi, düzeltme veya silme talebinde bulunabilirsiniz. Talebinize uygulanabilir veri koruma kuralları çerçevesinde yanıt veririz. Yalnız cihazınızdaki verilere erişimimiz olmadığından bunları yönetmeniz için size yönlendirme sunarız.',
                 ],
@@ -101,7 +102,7 @@ return [
     'en' => [
         'title' => 'Privacy Policy',
         'description' => 'Minimal Fasting privacy policy about on-device records, optional backups, notifications and deleting your data.',
-        'updated' => 'Last updated: 14 October 2026',
+        'updated' => 'Last updated: 3 November 2026',
         'intro' => 'Minimal Fasting lets you track fasting and eating windows without creating an account. This policy covers the current app version and this policy page.',
         'badges' => [
             'No account required',
@@ -167,6 +168,7 @@ return [
                 'id' => 'support',
                 'title' => '8. Contacting us and your rights',
                 'paragraphs' => [
+                    'When you open support, a random identifier for this installation is registered on the server so you can access your conversations. When you submit a request, its subject, message, support language and optional name and email address are sent to the Coreapp support system. Replies are stored there and can be read by refreshing in the app. Fasting records are not sent automatically. Clearing app data or reinstalling may remove access to your support history; it does not automatically delete conversations on the server.',
                     'If you email us, your email address, message and any attachments are processed to respond to your enquiry. You do not have to send fasting history or a backup file to request support. Support correspondence is kept only as needed to handle the enquiry and fulfil applicable legal obligations.',
                     'You can request information, correction or deletion of personal data you have sent us. We respond under applicable data protection rules. Since we cannot access data stored only on your device, we can provide guidance for managing it yourself.',
                 ],
@@ -198,7 +200,7 @@ return [
     'de' => [
         'title' => 'Datenschutzerklärung',
         'description' => 'Datenschutzerklärung von Minimal Fasting zu lokalen Daten, optionalen Sicherungen, Benachrichtigungen und der Datenlöschung.',
-        'updated' => 'Zuletzt aktualisiert: 14. Oktober 2026',
+        'updated' => 'Zuletzt aktualisiert: 3. November 2026',
         'intro' => 'Mit Minimal Fasting kannst du Fasten- und Essensfenster ohne Benutzerkonto erfassen. Diese Erklärung gilt für die aktuelle App-Version und diese Webseite.',
         'badges' => [
             'Kein Konto nötig',
@@ -264,6 +266,7 @@ return [
                 'id' => 'support',
                 'title' => '8. Kontakt und deine Rechte',
                 'paragraphs' => [
+                    'Wenn Sie den Support öffnen, wird eine zufällige Kennung dieser Installation auf dem Server registriert, damit Sie auf Ihre Gespräche zugreifen können. Beim Senden einer Anfrage werden Betreff, Nachricht, Supportsprache sowie optional Name und E-Mail-Adresse an das Coreapp-Supportsystem übertragen. Antworten werden dort gespeichert und können durch Aktualisieren in der App gelesen werden. Fastendaten werden nicht automatisch übertragen. Das Löschen der App-Daten oder eine Neuinstallation kann den Zugriff auf den Supportverlauf entfernen; Gespräche auf dem Server werden dadurch nicht automatisch gelöscht.',
                     'Wenn du uns per E-Mail kontaktierst, verarbeiten wir deine E-Mail-Adresse, Nachricht und Anhänge zur Beantwortung deiner Anfrage. Für Unterstützung musst du weder deinen Fastenverlauf noch eine Sicherungsdatei senden. Support-Korrespondenz wird nur aufbewahrt, soweit es für die Anfrage und geltende rechtliche Pflichten erforderlich ist.',
                     'Du kannst Auskunft, Berichtigung oder Löschung der an uns übermittelten personenbezogenen Daten verlangen. Wir antworten nach den geltenden Datenschutzregeln. Auf ausschließlich lokal gespeicherte Daten haben wir keinen Zugriff; wir können dir Hinweise zur Verwaltung geben.',
                 ],
