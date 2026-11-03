@@ -14,6 +14,8 @@ class App extends Model
     /** @use HasFactory<AppFactory> */
     use HasFactory;
 
+    protected $hidden = ['support_api_key_hash'];
+
     protected function casts(): array
     {
         return ['is_active' => 'boolean'];

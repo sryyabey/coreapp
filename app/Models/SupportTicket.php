@@ -15,7 +15,7 @@ class SupportTicket extends Model
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    protected $guarded = ['id', 'app_id', 'user_id'];
+    protected $guarded = ['id', 'app_id', 'user_id', 'external_user_id', 'external_user_name', 'external_user_email'];
 
     protected $attributes = ['status' => 'open', 'priority' => 'normal', 'category' => 'general', 'version' => 0];
 
@@ -27,10 +27,20 @@ class SupportTicket extends Model
     protected static function booted(): void
     {
         static::updating(function (SupportTicket $ticket): void {
-            if ($ticket->isDirty(['app_id', 'user_id'])) {
+            if ($ticket->isDirty(['app_id', 'user_id', 'external_user_id'])) {
                 throw ValidationException::withMessages(['app_id' => 'Destek talebinin uygulaması ve kullanıcısı değiştirilemez.']);
             }
         });
+    }
+
+    public function getCustomerNameAttribute(): string
+    {
+        return $this->external_user_id !== null ? ($this->external_user_name ?? $this->external_user_id) : ($this->user?->name ?? 'Silinmiş kullanıcı');
+    }
+
+    public function getCustomerEmailAttribute(): string
+    {
+        return $this->external_user_id !== null ? ($this->external_user_email ?? '') : ($this->user?->email ?? '');
     }
 
     public function assignee(): BelongsTo

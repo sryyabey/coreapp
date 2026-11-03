@@ -14,6 +14,9 @@ class SupportPush
     public function enqueue(SupportMessage $message): void
     {
         $ticket = $message->ticket;
+        if ($ticket->external_user_id !== null) {
+            return;
+        }
         $id = (string) Str::uuid();
         $inserted = DB::table('support_push_outbox')->insertOrIgnore(['id' => $id, 'message_id' => $message->id, 'app_id' => $ticket->app_id, 'user_id' => $ticket->user_id, 'expires_at' => now()->addDay(), 'created_at' => now(), 'updated_at' => now()]);
         if ($inserted && app(FcmSender::class)->configured($ticket->app->slug)) {

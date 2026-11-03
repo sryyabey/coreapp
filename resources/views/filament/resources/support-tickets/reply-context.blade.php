@@ -1,7 +1,7 @@
 <div style="display:grid;gap:16px">
     <x-filament::section heading="Gönderilecek kişi ve uygulama" compact>
-        <p><strong>{{ $ticket->user->name }}</strong> · {{ $ticket->app->name }}</p>
-        <p style="font-size:13px;color:gray;margin-top:4px">{{ $ticket->user->email }}</p>
+        <p><strong>{{ $ticket->customer_name }}</strong> · {{ $ticket->app->name }}</p>
+        <p style="font-size:13px;color:gray;margin-top:4px">{{ $ticket->customer_email }}</p>
     </x-filament::section>
     @php($lastMessage = $ticket->messages()->where('sender_type', 'user')->reorder('id', 'desc')->first())
     @if($lastMessage)

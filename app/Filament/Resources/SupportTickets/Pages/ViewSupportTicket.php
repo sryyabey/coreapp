@@ -103,7 +103,7 @@ class ViewSupportTicket extends ViewRecord
 
     public function relatedTickets(): Collection
     {
-        return SupportTicketResource::getEloquentQuery()->where('user_id', $this->record->user_id)->where('id', '!=', $this->record->id)->latest('updated_at')->limit(5)->get();
+        return SupportTicketResource::getEloquentQuery()->when($this->record->external_user_id !== null, fn (Builder $query): Builder => $query->where('app_id', $this->record->app_id)->where('external_user_id', $this->record->external_user_id), fn (Builder $query): Builder => $query->where('user_id', $this->record->user_id))->where('id', '!=', $this->record->id)->latest('updated_at')->limit(5)->get();
     }
 
     private function templates(): Builder
@@ -118,6 +118,9 @@ class ViewSupportTicket extends ViewRecord
 
     public function notificationSummary(): array
     {
+        if ($this->record->external_user_id !== null) {
+            return ['membership_active' => true, 'enabled' => false, 'status' => 'external', 'counts' => []];
+        }
         $membership = DB::table('app_users')->where('app_id', $this->record->app_id)->where('user_id', $this->record->user_id)->first();
         $lastId = $this->record->messages()->where('sender_type', 'staff')->max('id');
         $event = $lastId ? DB::table('support_push_outbox')->where('message_id', $lastId)->first() : null;

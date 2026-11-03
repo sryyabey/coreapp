@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\EntitlementController;
+use App\Http\Controllers\Api\V1\ExternalSupportTicketController;
 use App\Http\Controllers\Api\V1\PurchaseController;
 use App\Http\Controllers\Api\V1\ShiftCal\AccountDeletionController;
 use App\Http\Controllers\Api\V1\ShiftCal\CloudBackupController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\V1\ShiftCal\WageSettingController;
 use App\Http\Controllers\Api\V1\StoreNotificationController;
 use App\Http\Controllers\Api\V1\SupportNotificationController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
+use App\Http\Middleware\AuthenticateSupportIntegration;
 use App\Http\Middleware\EnsureAppMembership;
 use App\Http\Middleware\EnsureShiftCalApp;
 use App\Http\Middleware\ResolveMobileApp;
@@ -81,3 +83,16 @@ Route::prefix('v1/apps/{app}')->name('api.v1.')->middleware(ResolveMobileApp::cl
 });
 
 Route::post('v1/store-notifications/{app}/{platform}', StoreNotificationController::class)->whereIn('platform', ['ios', 'android'])->name('api.v1.store-notifications');
+
+// Server-to-server only: the calling application must authenticate its own user.
+Route::prefix('v1/integrations/{app}/support/users/{externalUser}')
+    ->middleware([ResolveMobileApp::class, 'throttle:60,1', AuthenticateSupportIntegration::class])
+    ->where(['externalUser' => '[A-Za-z0-9_.@-]{1,128}'])
+    ->group(function (): void {
+        $controller = ExternalSupportTicketController::class;
+        Route::get('tickets', [$controller, 'index']);
+        Route::post('tickets', [$controller, 'store']);
+        Route::get('tickets/{ticket}', [$controller, 'show'])->whereUuid('ticket');
+        Route::post('tickets/{ticket}/messages', [$controller, 'message'])->whereUuid('ticket');
+        Route::post('tickets/{ticket}/read', [$controller, 'read'])->whereUuid('ticket');
+    });

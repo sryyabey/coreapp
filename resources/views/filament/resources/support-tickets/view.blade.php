@@ -23,7 +23,7 @@
         <x-filament::section>
             <div class="sc-row">
                 <div>
-                    <p class="sc-muted">{{ $record->app->name }} · {{ $record->user->name }}</p>
+                    <p class="sc-muted">{{ $record->app->name }} · {{ $record->customer_name }}</p>
                     <h2 class="sc-heading">{{ $record->subject }}</h2>
                 </div>
                 <x-filament::badge :color="$record->status === 'open' ? 'warning' : ($record->status === 'answered' ? 'success' : 'gray')">
@@ -44,7 +44,7 @@
                         @forelse ($this->conversation() as $message)
                             <article wire:key="message-{{ $message->id }}" class="sc-message {{ $message->sender_type === 'staff' ? 'is-staff' : '' }}">
                                 <div class="sc-row sc-muted">
-                                    <strong>{{ $message->sender_type === 'staff' ? 'Destek · ' . ($message->sender?->name ?? 'Eski görevli') : $record->user->name }}</strong>
+                                    <strong>{{ $message->sender_type === 'staff' ? 'Destek · ' . ($message->sender?->name ?? 'Eski görevli') : $record->customer_name }}</strong>
                                     <time>{{ $message->created_at->format('d.m.Y H:i') }}</time>
                                 </div>
                                 <p class="sc-body">{{ $message->body }}</p>
@@ -61,7 +61,7 @@
                             <div class="sc-row">
                                 <div>
                                     <strong>Kullanıcıya yanıt ver</strong>
-                                    <p class="sc-muted">{{ $record->user->email }} · {{ $record->app->name }}</p>
+                                    <p class="sc-muted">{{ $record->customer_email }} · {{ $record->app->name }}</p>
                                 </div>
                                 {{ $this->replyAction }}
                             </div>
@@ -107,7 +107,7 @@
                 </x-filament::section>
                 <x-filament::section heading="Kullanıcı ve uygulama" collapsible>
                     <dl class="sc-data">
-                        <div><dt>Kullanıcı</dt><dd>{{ $record->user->name }}<br><span class="sc-muted">{{ $record->user->email }}</span></dd></div>
+                        <div><dt>Kullanıcı</dt><dd>{{ $record->customer_name }}<br><span class="sc-muted">{{ $record->customer_email }}</span></dd></div>
                         <div><dt>Uygulama</dt><dd>{{ $record->app->name }}<br><span class="sc-muted">{{ $record->app->slug }}</span></dd></div>
                         <div><dt>Dil · açılış</dt><dd>{{ $record->locale === 'tr' ? 'Türkçe' : 'İngilizce' }} · {{ $record->created_at->format('d.m.Y H:i') }}</dd></div>
                         <div><dt>Talep numarası</dt><dd class="sc-muted">{{ $record->id }}</dd></div>
@@ -115,12 +115,17 @@
                 </x-filament::section>
                 <x-filament::section heading="Bildirim ayrıntıları" collapsible collapsed>
                     <div class="sc-data">
+                        @if($record->external_user_id !== null)
+                            <p>Dış uygulama · Kullanıcı kimliği: {{ $record->external_user_id }}</p>
+                            <p class="sc-muted">Yanıtlar dış uygulama tarafından API üzerinden alınır. Bildirimleri dış uygulama yönetir.</p>
+                        @else
                         <p class="sc-muted">Kullanıcı tercihi: {{ $notification['enabled'] ? 'Bildirimler açık' : 'Bildirimler kapalı' }}</p>
                         <p>{{ ['pending'=>'Gönderim bekliyor','completed'=>'Gönderim işlemi tamamlandı','skipped'=>'Bildirim gönderilmedi'][$notification['status'] ?? ''] ?? 'Henüz destek yanıtı yok' }}</p>
                         @foreach($notification['counts'] as $status => $count)
                             <p class="sc-muted">{{ ['sent'=>'Bildirim servisi kabul etti','pending'=>'Bekleyen cihaz','invalid_token'=>'Geçersiz cihaz kaydı','failed'=>'Gönderim başarısız'][$status] ?? $status }}: {{ $count }}</p>
                         @endforeach
                         <p class="sc-muted">Servisin kabulü telefonda gösterildiğini garanti etmez. Okuma durumu mesajın altında görünür.</p>
+                        @endif
                     </div>
                 </x-filament::section>
                 @if($related->isNotEmpty())

@@ -57,8 +57,8 @@ class SupportTicketResource extends Resource
         return $table->columns([
             TextColumn::make('id')->label('Talep no')->copyable()->limit(8)->searchable()->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('app.name')->label('Uygulama')->badge()->searchable()->sortable()->description(fn (SupportTicket $record): string => $record->app->slug),
-            TextColumn::make('user.name')->label('Kullanıcı')->searchable()->description(fn (SupportTicket $record): string => $record->user->email),
-            TextColumn::make('user.email')->label('E-posta')->searchable()->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('customer_name')->label('Kullanıcı')->searchable(query: fn (Builder $query, string $search): Builder => $query->where(fn (Builder $q): Builder => $q->where('external_user_name', 'like', "%{$search}%")->orWhere('external_user_id', 'like', "%{$search}%")->orWhereHas('user', fn (Builder $u): Builder => $u->where('name', 'like', "%{$search}%"))))->description(fn (SupportTicket $record): string => $record->customer_email),
+            TextColumn::make('customer_email')->label('E-posta')->searchable(query: fn (Builder $query, string $search): Builder => $query->where(fn (Builder $q): Builder => $q->where('external_user_email', 'like', "%{$search}%")->orWhereHas('user', fn (Builder $u): Builder => $u->where('email', 'like', "%{$search}%"))))->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('subject')->label('Konu')->searchable()->limit(60)->wrap(),
             TextColumn::make('status')->label('Durum')->badge()->formatStateUsing(fn (string $state): string => self::statuses()[$state] ?? $state)
                 ->color(fn (string $state): string => match ($state) {

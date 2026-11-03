@@ -44,7 +44,7 @@ class SupportService
                 return $existing;
             }
             $this->current($record, $agent, $expectedVersion);
-            if (! $record->app->is_active || ! AppUser::where('app_id', $record->app_id)->where('user_id', $record->user_id)->where('is_active', true)->exists()) {
+            if (! $record->app->is_active || ($record->external_user_id === null && ! AppUser::where('app_id', $record->app_id)->where('user_id', $record->user_id)->where('is_active', true)->exists())) {
                 throw ValidationException::withMessages(['body' => 'Uygulama veya kullanıcı üyeliği aktif değil.']);
             }
             $message = $record->messages()->create(['sender_type' => 'staff', 'client_request_id' => $data['client_request_id'], 'sender_id' => $agent->id, 'body' => $data['body']]);
@@ -139,7 +139,7 @@ class SupportService
         });
     }
 
-    public function customerMessage(SupportTicket $ticket, int $userId, SupportMessage $message, bool $created = false): void
+    public function customerMessage(SupportTicket $ticket, ?int $userId, SupportMessage $message, bool $created = false): void
     {
         $before = $ticket->status;
         $ticket->update(['status' => 'open', 'closed_at' => null, 'last_customer_message_at' => $message->created_at, 'version' => $ticket->version + 1]);
