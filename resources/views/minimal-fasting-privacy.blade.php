@@ -60,6 +60,6 @@
         <a class="button" href="mailto:{{ $email }}?subject=Minimal%20Fasting%20privacy">{{ $ui['mail'] }}</a>
     </section>
 </main>
-<footer><span>© {{ date('Y') }} SryyaLabs · Minimal Fasting</span><a href="{{ route('home', $language === 'tr' ? [] : ['lang' => $language]) }}">{{ $ui['home'] }}</a></footer>
+<footer><span>© {{ date('Y') }} SryyaLabs · Minimal Fasting</span><a href="{{ route('minimal-fasting.terms') }}" lang="en">Terms of Service</a><a href="{{ route('home', $language === 'tr' ? [] : ['lang' => $language]) }}">{{ $ui['home'] }}</a></footer>
 </body>
 </html>

@@ -62,6 +62,6 @@
     <section class="section faq"><h2>{{ $copy['faq_title'] }}</h2>@foreach ($copy['faqs'] as [$question, $answer])<details><summary>{{ $question }}</summary><p>{{ $answer }}</p></details>@endforeach</section>
     <section class="release" id="contact"><h2>{{ $copy['release_title'] }}</h2><p>{{ $copy['release_body'] }}</p><div class="stores"><div class="store"><strong>{{ $copy['play'] }}</strong><span>{{ $copy['play_status'] }}</span></div><div class="store"><strong>{{ $copy['apple'] }}</strong><span>{{ $copy['apple_status'] }}</span></div></div><a class="contact-link" href="mailto:{{ $email }}?subject=Minimal%20Fasting">{{ $copy['contact'] }}</a></section>
 </main>
-<footer><div class="wrap footer-inner"><span>© {{ date('Y') }} SryyaLabs · Minimal Fasting</span><div class="footer-links"><a href="{{ route('minimal-fasting.privacy', $params) }}">{{ $copy['privacy'] }}</a><a href="{{ route('home', $params) }}">{{ $copy['home'] }}</a></div></div></footer>
+<footer><div class="wrap footer-inner"><span>© {{ date('Y') }} SryyaLabs · Minimal Fasting</span><div class="footer-links"><a href="{{ route('minimal-fasting.privacy', $params) }}">{{ $copy['privacy'] }}</a><a href="{{ route('minimal-fasting.terms') }}" lang="en">Terms of Service</a><a href="{{ route('home', $params) }}">{{ $copy['home'] }}</a></div></div></footer>
 </body>
 </html>

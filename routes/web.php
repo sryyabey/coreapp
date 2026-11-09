@@ -23,3 +23,4 @@ Route::get('/shiftcal/terms', ShiftCalTermsController::class)->name('shiftcal.te
 
 Route::get('/minimal-fasting', MinimalFastingMarketingController::class)->name('minimal-fasting');
 Route::get('/minimal-fasting/privacy', MinimalFastingPrivacyController::class)->name('minimal-fasting.privacy');
+Route::view('/minimal-fasting/terms', 'minimal-fasting-terms')->name('minimal-fasting.terms');
