@@ -49,6 +49,19 @@ class MinimalFastingPrivacyTest extends TestCase
         }
     }
 
+    public function test_english_policy_has_the_data_and_privacy_section_linked_from_settings(): void
+    {
+        $this->get('/minimal-fasting/privacy?lang=en')
+            ->assertOk()
+            ->assertSee('<html lang="en">', false)
+            ->assertSee('href="#data-and-privacy"', false)
+            ->assertSee('id="data-and-privacy"', false)
+            ->assertSee('Data & Privacy')
+            ->assertSee('Your fasting and eating history stays on your device.')
+            ->assertSee('Opening in-app support registers a random installation identifier.')
+            ->assertSee('Apple processes the optional one-time Premium purchase.');
+    }
+
     public function test_contact_address_uses_the_app_specific_configuration(): void
     {
         config(['support.minimal_fasting_email' => 'fasting@example.com']);

@@ -101,8 +101,8 @@ return [
     ],
     'en' => [
         'title' => 'Privacy Policy',
-        'description' => 'Minimal Fasting privacy policy about on-device records, optional backups, notifications and deleting your data.',
-        'updated' => 'Last updated: 3 November 2026',
+        'description' => 'Learn how Minimal Fasting handles on-device records, optional backups, support requests and data deletion.',
+        'updated' => 'Last updated: 9 November 2026',
         'intro' => 'Minimal Fasting lets you track fasting and eating windows without creating an account. This policy covers the current app version and this policy page.',
         'badges' => [
             'No account required',
@@ -110,6 +110,14 @@ return [
             'Optional backups',
         ],
         'sections' => [
+            [
+                'id' => 'data-and-privacy',
+                'title' => 'Data & Privacy',
+                'paragraphs' => [
+                    'Your fasting and eating history stays on your device. You can delete individual entries in History. In Settings, use Backup to export or restore a copy of your records. You choose where to save that copy and can delete it from that location.',
+                    'Opening in-app support registers a random installation identifier. Sending a support request shares the information you enter. Use the privacy contact below to request access to, correction of, or deletion of the information you sent us.',
+                ],
+            ],
             [
                 'id' => 'developer',
                 'title' => '1. Developer and scope',
@@ -153,7 +161,7 @@ return [
                 'id' => 'payments',
                 'title' => '6. Stores and payments',
                 'paragraphs' => [
-                    'The current app version has no in-app purchase integration; we do not collect payment card details. App store download, account or transaction records are handled by the store under its own rules. We update this policy if the app’s data handling changes.',
+                    'On iOS, Apple processes the optional one-time Premium purchase. Minimal Fasting uses Apple’s StoreKit to check whether Premium is active and to restore access when you request it. We do not receive your payment card details. Android currently has no in-app purchase option.',
                 ],
             ],
             [
